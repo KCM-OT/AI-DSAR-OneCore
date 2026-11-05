@@ -1,0 +1,11 @@
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--oc-spacing-8) var(--oc-spacing-4);
+  display: grid;
+  gap: var(--oc-spacing-4);
+}
+
+h1 {
+  margin: 0;
+}
