@@ -1,7 +1,32 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideChoreography } from '@onetrust/onecore/choreography';
-import { inbox, sparkles, provideOcIcons } from '@onetrust/onecore/icon';
+import {
+  aiSparkles,
+  arrowRight,
+  bell,
+  chain,
+  chartColumn,
+  check,
+  chevronDown,
+  envelope,
+  eraser,
+  fileLines,
+  filePdf,
+  gauge,
+  gear,
+  gridRound,
+  listCheck,
+  magnifyingGlass,
+  paperPlane,
+  paperclip,
+  questionCircle,
+  sitemap,
+  user,
+  window,
+  wrench,
+  provideOcIcons,
+} from '@onetrust/onecore/icon';
 
 import { routes } from './app.routes';
 
@@ -13,6 +38,30 @@ export const appConfig: ApplicationConfig = {
     provideChoreography({ reducedMotion: 'auto' }),
     // OneCore icons are tree-shaken: register every icon a screen renders.
     // An unregistered name renders nothing (with a dev-mode console error).
-    provideOcIcons([inbox, sparkles]),
+    provideOcIcons([
+      aiSparkles,
+      arrowRight,
+      bell,
+      chain,
+      chartColumn,
+      check,
+      chevronDown,
+      envelope,
+      eraser,
+      fileLines,
+      filePdf,
+      gauge,
+      gear,
+      gridRound,
+      listCheck,
+      magnifyingGlass,
+      paperPlane,
+      paperclip,
+      questionCircle,
+      sitemap,
+      user,
+      window,
+      wrench,
+    ]),
   ],
 };

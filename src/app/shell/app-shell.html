@@ -1,0 +1,53 @@
+<aside class="sidebar">
+  <div class="brand">
+    <button class="apps" type="button" aria-label="OneTrust apps">
+      <oc-icon name="grid-round" size="sm" />
+    </button>
+    <img src="onetrust-logo-white.svg" alt="OneTrust" height="20" />
+  </div>
+  <nav aria-labelledby="module-name">
+    <p id="module-name" class="module">Privacy Rights Automation</p>
+    <ul>
+      @for (l of links; track l.path) {
+        <li>
+          <a [routerLink]="l.path" routerLinkActive="active" ariaCurrentWhenActive="page">
+            <oc-icon [name]="l.icon" size="sm" />
+            <span>{{ l.label }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+</aside>
+
+<div class="main">
+  <header class="topbar">
+    <span class="tenant">Meridian Brands</span>
+    <div class="tools">
+      <button oc-icon-button variant="tertiary" size="sm" label="Search">
+        <oc-icon name="magnifying-glass" />
+      </button>
+      <button oc-button variant="secondary" size="sm">
+        <oc-icon slot="leading" name="ai-sparkles" />
+        Ask Copilot
+      </button>
+      <button oc-icon-button variant="tertiary" size="sm" label="Notifications">
+        <oc-icon name="bell" />
+      </button>
+      <button oc-button variant="tertiary" size="sm">
+        Privacy Group
+        <oc-icon slot="trailing" name="chevron-down" />
+      </button>
+      <button oc-icon-button variant="tertiary" size="sm" label="Settings">
+        <oc-icon name="gear" />
+      </button>
+      <oc-avatar size="sm" [initials]="user.initials" [label]="user.name" />
+      <button oc-icon-button variant="tertiary" size="sm" label="Help">
+        <oc-icon name="question-circle" />
+      </button>
+    </div>
+  </header>
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>

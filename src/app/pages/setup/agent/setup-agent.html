@@ -1,0 +1,204 @@
+<app-page-header title="Privacy Agent">
+  <p class="crumbs"><a routerLink="/setup">Setup</a> › Privacy Agent</p>
+  <p class="lede">
+    AI Assisted configuration for jurisdiction, data subject rights, response templates, and
+    workflows.
+  </p>
+</app-page-header>
+
+<div class="layout">
+  <oc-assistant-thread class="thread" label="Privacy Agent setup">
+    <div class="viewport" ocAssistantViewport #viewport="ocAssistantViewport" label="Conversation with the Privacy Agent">
+      <div class="turns">
+        @for (t of turns(); track t.id) {
+          @if (t.from === 'user') {
+            <oc-assistant-message from="user" author="You" [text]="t.text">
+              <oc-avatar slot="avatar" size="sm" [initials]="user.initials" [label]="user.name" [showTooltip]="false" />
+            </oc-assistant-message>
+            @if (t.block === 'uploads') {
+              <ul class="uploads" aria-label="Attached documents">
+                @for (d of documents; track d.name) {
+                  <li>
+                    <oc-icon [name]="d.kind === 'pdf' ? 'file-pdf' : 'file-lines'" size="sm" />
+                    {{ d.name }}
+                  </li>
+                }
+              </ul>
+            }
+          } @else {
+            <oc-assistant-message from="assistant" author="Privacy Agent">
+              <oc-avatar slot="avatar" size="sm" label="Privacy Agent" [showTooltip]="false">
+                <oc-icon name="ai-sparkles" />
+              </oc-avatar>
+              @if (streamState(t.id) === 'pending') {
+                <oc-assistant-thinking label="The Privacy Agent is working on a reply" />
+              }
+              <span
+                [ocStream]="t.source!"
+                (streamState)="setStreamState(t.id, $event)"
+                (complete)="onStreamComplete(t.id)"
+              ></span>
+
+              @if (isSettled(t.id)) {
+                @switch (t.block) {
+                  @case ('profile') {
+                    <dl class="block profile">
+                      @for (row of profile; track row.label) {
+                        <div>
+                          <dt>{{ row.label }}</dt>
+                          <dd>
+                            @for (v of row.values; track v) {
+                              <oc-tag size="sm">{{ v }}</oc-tag>
+                            }
+                          </dd>
+                        </div>
+                      }
+                    </dl>
+                  }
+                  @case ('playbook') {
+                    <div class="block playbook">
+                      @for (sec of playbook; track sec.title) {
+                        <section>
+                          <h3>{{ sec.title }}</h3>
+                          <ul>
+                            @for (item of sec.items; track item.text) {
+                              <li>
+                                <span>{{ item.text }}</span>
+                                <oc-badge size="sm">{{ item.source }}</oc-badge>
+                              </li>
+                            }
+                          </ul>
+                        </section>
+                      }
+                    </div>
+                  }
+                  @case ('agents') {
+                    <div class="block">
+                      <ul class="agents">
+                        @for (a of agents; track a.brand) {
+                          <li>
+                            <strong>{{ a.brand }}</strong>
+                            <span class="sub">Request types: {{ a.requestTypes.join(' · ') }}</span>
+                            <span class="regs">
+                              @for (r of a.regulations; track r) {
+                                <oc-badge size="sm" color="blue">{{ r }}</oc-badge>
+                              }
+                            </span>
+                          </li>
+                        }
+                      </ul>
+                      <div class="block-actions">
+                        @if (agentsApproved()) {
+                          <oc-badge color="success"><oc-icon name="check" size="xs" /> Approved</oc-badge>
+                        } @else {
+                          <button oc-button size="sm" [disabled]="busy()" (click)="approveAgents()">
+                            Approve all four
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  }
+                  @case ('systems') {
+                    <div class="block">
+                      <ul class="systems">
+                        @for (s of systems; track s.name) {
+                          <li>
+                            <oc-icon [name]="s.connector ? 'chain' : 'user'" size="sm" />
+                            <span class="sys-text">
+                              <strong>{{ s.name }}</strong>
+                              <span class="sub">{{ s.holds }}</span>
+                              <span class="sub">{{ s.method }}</span>
+                            </span>
+                            @if (systemsConnected()) {
+                              <oc-badge size="sm" color="success">{{ s.connector ? 'Connected' : 'Owner notified' }}</oc-badge>
+                            }
+                          </li>
+                        }
+                      </ul>
+                      <div class="block-actions">
+                        @if (!systemsConnected()) {
+                          <button oc-button size="sm" [disabled]="busy()" (click)="connectSystems()">
+                            Connect systems
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  }
+                  @case ('handoff') {
+                    <div class="block handoff">
+                      <oc-icon name="sitemap" />
+                      <span>
+                        <strong>DSAR Intake Workflow</strong>
+                        <span class="sub">Opt-out · Access · Deletion · Correction</span>
+                      </span>
+                      <a oc-button variant="accent" size="sm" routerLink="/setup/flow">
+                        Open the flow chart
+                        <oc-icon slot="trailing" name="arrow-right" />
+                      </a>
+                    </div>
+                  }
+                }
+              }
+            </oc-assistant-message>
+          }
+        }
+      </div>
+    </div>
+
+    @if (!viewport.atBottom()) {
+      <button oc-icon-button ocAssistantScrollToBottom class="jump" variant="secondary" size="sm" label="Jump to latest">
+        <oc-icon name="chevron-down" />
+      </button>
+    }
+
+    @if (stage() === 1 && !busy()) {
+      <div class="suggestions" role="group" aria-label="Suggestions">
+        <button oc-button variant="secondary" size="sm" (click)="attachDocuments()">
+          <oc-icon slot="leading" name="paperclip" />
+          Attach Meridian's documents
+        </button>
+      </div>
+    } @else if (suggestion(); as s) {
+      <div class="suggestions" role="group" aria-label="Suggestions">
+        <!-- Suggestions send straight away; OneCore leaves the click to the app. -->
+        <button oc-assistant-suggestion [suggestion]="s" [setPromptOnClick]="false" (click)="onSend(s)"></button>
+      </div>
+    }
+
+    <oc-assistant-composer label="Message the Privacy Agent" (send)="onSend($event)">
+      <textarea oc-textarea ocAssistantInput rows="2" aria-label="Message" placeholder="Message to privacy agent goes here…"></textarea>
+      <div oc-assistant-actions>
+        <span slot="end">
+          <button oc-icon-button ocAssistantSubmit variant="primary" size="sm" label="Send" [disabled]="busy()">
+            <oc-icon name="paper-plane" />
+          </button>
+        </span>
+      </div>
+    </oc-assistant-composer>
+  </oc-assistant-thread>
+
+  <aside class="rail" aria-labelledby="steps-title">
+    <h2 id="steps-title">Privacy intake steps</h2>
+    <ol class="steps">
+      @for (s of steps; track s; let i = $index) {
+        <li
+          [class.done]="i < stepsDone()"
+          [class.current]="i === stepsDone()"
+          [attr.aria-current]="i === stepsDone() ? 'step' : null"
+        >
+          <span class="marker">
+            @if (i < stepsDone()) {
+              <oc-icon name="check" size="xs" />
+            } @else {
+              {{ i + 1 }}
+            }
+          </span>
+          <span>{{ s }}</span>
+          @if (i < stepsDone()) {
+            <span class="visually-hidden">(done)</span>
+          }
+        </li>
+      }
+    </ol>
+  </aside>
+</div>

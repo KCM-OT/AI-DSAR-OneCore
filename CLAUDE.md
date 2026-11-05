@@ -18,6 +18,21 @@ with OneCore components; its code is a reference, not something to copy in.
   npm, so hosts without Nexus access (for example Vercel) cannot install it. Deploy by building
   locally and uploading with `vercel deploy --prebuilt` (not set up yet).
 
+## Screens
+
+The v0 demo is mapped step by step in `docs/v0-reference.md` (copy, mock data, port decisions).
+Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
+
+- Shell (`src/app/shell/`): dark module sidebar (Privacy Rights Automation) and tenant top bar.
+  Routes without a page render `pages/placeholder.ts`.
+- `/setup`: Setup landing (agent-led or manual setup, program overview, configurations).
+- `/setup/agent`: Privacy Agent conversation (`oc-assistant-thread`) with a steps rail. The agent's
+  turns are scripted in `STAGES` and streamed word by word with `[ocStream]`; anything the user sends
+  (or a suggestion / block button) moves to the next stage. Ends with a link to `/setup/flow`.
+
+Not built yet: `/setup/flow`, `/setup/workflows`, `/intake`, `/requests/4207` (+ `/subtask`,
+`/redaction`), `/report` (page images are in `public/report-pages/`), `/dashboard`.
+
 ## OneCore
 
 - Docs ship in the package: `npx onecore list`, `npx onecore docs <component>`,
@@ -34,6 +49,9 @@ with OneCore components; its code is a reference, not something to copy in.
 - OneCore has no table, side nav or page header component. Build those from native HTML styled with
   tokens (the RoPA OneCore app at `~/Documents/privacy/RoPA/ropa-onecore` has working examples:
   `.data-table` in its `styles.scss`, and its `shell/` sidebar).
+- If the dev server logs `NG0203: inputFunction() can only be used within an injection context`
+  right after a new OneCore entry point is first imported, Vite re-bundled its deps mid-session;
+  reload the page (or stop the server and delete `.angular/cache`).
 - AI conversation UI: `oc-assistant-*` components, with `[ocStream]` (needs
   `provideChoreography()`, already registered).
 

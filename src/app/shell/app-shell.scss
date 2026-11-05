@@ -1,0 +1,123 @@
+:host {
+  display: flex;
+  height: 100vh;
+  // No OneCore token is this dark; matches the OneTrust module sidebar.
+  --app-sidebar-bg: rgb(10, 10, 10);
+  --app-sidebar-fg: rgb(245, 245, 245);
+  --app-sidebar-hover: rgb(38, 38, 38);
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 232px;
+  background: var(--app-sidebar-bg);
+  color: var(--app-sidebar-fg);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--oc-spacing-3);
+  height: 56px;
+  padding: 0 var(--oc-spacing-4);
+}
+
+.apps {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--oc-control-radius-sm);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--app-sidebar-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--oc-ring);
+  }
+}
+
+.module {
+  margin: 0;
+  padding: var(--oc-spacing-4);
+  border-top: 1px solid var(--app-sidebar-hover);
+  border-bottom: 1px solid var(--app-sidebar-hover);
+  font-size: var(--oc-font-size-sm);
+  font-weight: var(--oc-font-weight-emphasis);
+}
+
+ul {
+  margin: 0;
+  padding: var(--oc-spacing-2) 0;
+  list-style: none;
+}
+
+nav a {
+  display: flex;
+  align-items: center;
+  gap: var(--oc-spacing-3);
+  height: 40px;
+  padding: 0 var(--oc-spacing-4);
+  border-left: 3px solid transparent;
+  color: inherit;
+  font-size: var(--oc-font-size-sm);
+  text-decoration: none;
+
+  &:hover {
+    background: var(--app-sidebar-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--oc-ring);
+    outline-offset: -2px;
+  }
+
+  &.active {
+    border-left-color: var(--oc-brand);
+    background: var(--app-sidebar-hover);
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  height: 56px;
+  padding: 0 var(--oc-spacing-5);
+  border-bottom: var(--oc-container-border-width) solid var(--oc-border);
+  background: var(--oc-background);
+}
+
+.tenant {
+  font-size: var(--oc-font-size-lg);
+  font-weight: var(--oc-font-weight-emphasis);
+}
+
+.tools {
+  display: flex;
+  align-items: center;
+  gap: var(--oc-spacing-2);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: var(--oc-background);
+}

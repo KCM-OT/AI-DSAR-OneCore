@@ -1,0 +1,116 @@
+.lede {
+  margin: 0;
+  color: var(--oc-muted-foreground);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oc-spacing-8);
+  max-width: 1120px;
+  padding: var(--oc-spacing-6) var(--oc-spacing-5) var(--oc-spacing-8);
+}
+
+h2 {
+  margin: 0 0 var(--oc-spacing-3);
+  font-size: var(--oc-font-size-md);
+  font-weight: var(--oc-font-weight-emphasis);
+}
+
+.paths {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--oc-spacing-4);
+
+  oc-badge {
+    align-self: flex-start;
+    margin-bottom: var(--oc-spacing-2);
+  }
+}
+
+.recommended {
+  border-color: var(--oc-accent);
+}
+
+.checks {
+  display: grid;
+  gap: var(--oc-spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--oc-font-size-sm);
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: var(--oc-spacing-2);
+  }
+}
+
+.overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--oc-spacing-4);
+  margin: 0;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oc-spacing-1);
+  padding: var(--oc-spacing-4);
+  border: var(--oc-container-border-width) solid var(--oc-border);
+  border-radius: var(--oc-containers-radius-level-2);
+  font-size: var(--oc-font-size-sm);
+
+  dd {
+    margin: 0;
+  }
+
+  .value {
+    font-size: var(--oc-font-size-2xl);
+    font-weight: 500;
+  }
+
+  .note {
+    color: var(--oc-muted-foreground);
+  }
+}
+
+.configs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--oc-spacing-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: var(--oc-spacing-3);
+    padding: var(--oc-spacing-3) var(--oc-spacing-4);
+    border: var(--oc-container-border-width) solid var(--oc-border);
+    border-radius: var(--oc-containers-radius-level-2);
+  }
+}
+
+.config-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--oc-control-radius-sm);
+  background: var(--oc-secondary);
+}
+
+.config-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  font-size: var(--oc-font-size-sm);
+
+  span {
+    color: var(--oc-muted-foreground);
+  }
+}

@@ -1,0 +1,85 @@
+<app-page-header title="Setup">
+  <p class="lede">
+    Configure Data Subject Rights intake so your Privacy Agent can route, resolve, and report on
+    requests automatically.
+  </p>
+</app-page-header>
+
+<div class="body">
+  <section class="paths" aria-label="How to set up">
+    <oc-card class="recommended">
+      <oc-card-header>
+        <oc-badge size="sm" color="purple">
+          <oc-icon name="ai-sparkles" size="xs" /> Recommended
+        </oc-badge>
+        <oc-card-title>Set up with Privacy Agent</oc-card-title>
+        <oc-card-description>
+          Answer a few guided questions and your AI Privacy Agent configures jurisdictions, data
+          subject rights, response workflows, and templates for you, in minutes.
+        </oc-card-description>
+      </oc-card-header>
+      <oc-card-content>
+        <ul class="checks">
+          <li><oc-icon name="check" size="sm" /> Jurisdiction & regulation mapping</li>
+          <li><oc-icon name="check" size="sm" /> Request type recommendations</li>
+          <li><oc-icon name="check" size="sm" /> Ready-to-edit workflow draft</li>
+        </ul>
+      </oc-card-content>
+      <oc-card-footer>
+        <a oc-button variant="accent" routerLink="/setup/agent">
+          <oc-icon slot="leading" name="ai-sparkles" />
+          Start with privacy agent
+        </a>
+      </oc-card-footer>
+    </oc-card>
+
+    <oc-card>
+      <oc-card-header>
+        <oc-card-title>Set up manually</oc-card-title>
+        <oc-card-description>
+          Configure jurisdictions, data subject rights, and intake rules yourself using full control
+          over every setting.
+        </oc-card-description>
+      </oc-card-header>
+      <oc-card-content>
+        <ul class="checks">
+          <li><oc-icon name="check" size="sm" /> Full control over every field</li>
+          <li><oc-icon name="check" size="sm" /> No AI-generated defaults</li>
+          <li><oc-icon name="check" size="sm" /> Best if you already have a plan</li>
+        </ul>
+      </oc-card-content>
+      <oc-card-footer>
+        <button oc-button variant="secondary">Configure manually</button>
+      </oc-card-footer>
+    </oc-card>
+  </section>
+
+  <section aria-labelledby="overview-title">
+    <h2 id="overview-title">Program overview</h2>
+    <dl class="overview">
+      @for (o of overview; track o.label) {
+        <div class="stat">
+          <dt>{{ o.label }}</dt>
+          <dd class="value">{{ o.value }}</dd>
+          <dd class="note">{{ o.note }}</dd>
+        </div>
+      }
+    </dl>
+  </section>
+
+  <section aria-labelledby="config-title">
+    <h2 id="config-title">Configurations</h2>
+    <ul class="configs">
+      @for (c of configurations; track c.name) {
+        <li>
+          <span class="config-icon"><oc-icon [name]="c.icon" size="sm" /></span>
+          <span class="config-text">
+            <strong>{{ c.name }}</strong>
+            <span>{{ c.detail }}</span>
+          </span>
+          <oc-status intent="neutral" label="Not configured" size="sm" />
+        </li>
+      }
+    </ul>
+  </section>
+</div>
