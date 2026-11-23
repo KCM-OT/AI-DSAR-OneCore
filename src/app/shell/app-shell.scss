@@ -1,76 +1,113 @@
 :host {
   display: flex;
   height: 100vh;
-  // No OneCore token is this dark; matches the OneTrust module sidebar.
-  --app-sidebar-bg: rgb(10, 10, 10);
-  --app-sidebar-fg: rgb(245, 245, 245);
-  --app-sidebar-hover: rgb(38, 38, 38);
 }
+
+// ---- Left navigation (Figma "Left Nav - DSAR") --------------------------------------------------
+// The sidebar sets data-mode="dark", so every --oc-* token below resolves to its dark value.
 
 .sidebar {
+  // The black-to-green-to-black wash has no OneCore token.
+  --app-nav-gradient: linear-gradient(to bottom, rgb(0, 0, 0), rgb(9, 18, 16) 50%, rgb(0, 0, 0));
+  --app-nav-gap: calc(var(--oc-spacing-1) * 2.5); // 10px between icon and label
+
   display: flex;
   flex-direction: column;
-  flex: 0 0 232px;
-  background: var(--app-sidebar-bg);
-  color: var(--app-sidebar-fg);
+  flex: 0 0 260px;
+  overflow: hidden;
+  background: var(--app-nav-gradient);
+  color: var(--oc-foreground);
+  transition: flex-basis 150ms ease;
+
+  &.collapsed {
+    flex-basis: 68px;
+  }
 }
 
-.brand {
+.nav-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.header {
   display: flex;
   align-items: center;
-  gap: var(--oc-spacing-3);
-  height: 56px;
-  padding: 0 var(--oc-spacing-4);
-}
+  justify-content: space-between;
+  padding: var(--oc-control-padding-x-lg) var(--oc-spacing-5);
+  padding-left: calc(var(--oc-spacing-5) + 1px);
 
-.apps {
-  display: inline-grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border: 0;
-  border-radius: var(--oc-control-radius-sm);
-  background: none;
-  color: inherit;
-  cursor: pointer;
-
-  &:hover {
-    background: var(--app-sidebar-hover);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--oc-ring);
+  .collapsed & {
+    justify-content: center;
+    padding-inline: 0;
   }
 }
 
-.module {
-  margin: 0;
-  padding: var(--oc-spacing-4);
-  border-top: 1px solid var(--app-sidebar-hover);
-  border-bottom: 1px solid var(--app-sidebar-hover);
+.logo {
+  display: block;
+}
+
+.group {
+  padding: var(--oc-container-padding-md) var(--oc-container-padding-sm);
+
+  &.module {
+    border-bottom: var(--oc-container-border-width) solid var(--oc-border-popover);
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--oc-control-gap-lg);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+}
+
+.group-label {
+  margin: 0 0 var(--oc-control-gap-lg);
+  padding: var(--oc-spacing-layout-xs) var(--oc-control-padding-x-md);
+  color: var(--oc-muted-foreground);
   font-size: var(--oc-font-size-sm);
   font-weight: var(--oc-font-weight-emphasis);
+  line-height: var(--oc-line-height-tight);
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  .collapsed & {
+    visibility: hidden;
+  }
 }
 
-ul {
-  margin: 0;
-  padding: var(--oc-spacing-2) 0;
-  list-style: none;
-}
-
-nav a {
+.nav-item {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
-  gap: var(--oc-spacing-3);
-  height: 40px;
-  padding: 0 var(--oc-spacing-4);
-  border-left: 3px solid transparent;
-  color: inherit;
-  font-size: var(--oc-font-size-sm);
+  gap: var(--app-nav-gap);
+  width: 100%;
+  min-height: 38px;
+  padding: var(--oc-spacing-layout-xs) var(--oc-control-padding-x-md);
+  border: 0;
+  border-radius: var(--oc-control-radius-md);
+  background: none;
+  color: var(--oc-foreground);
+  font: inherit;
+  font-size: var(--oc-font-size-md);
+  font-weight: var(--oc-font-weight-emphasis);
+  line-height: 1;
+  text-align: start;
   text-decoration: none;
+  cursor: pointer;
+
+  oc-icon,
+  .glyph {
+    flex-shrink: 0;
+    color: var(--oc-muted-foreground);
+  }
 
   &:hover {
-    background: var(--app-sidebar-hover);
+    background: var(--oc-item-hover);
   }
 
   &:focus-visible {
@@ -79,10 +116,105 @@ nav a {
   }
 
   &.active {
-    border-left-color: var(--oc-brand);
-    background: var(--app-sidebar-hover);
+    background: var(--oc-item-active);
+
+    oc-icon {
+      color: var(--oc-foreground);
+    }
+  }
+
+  .collapsed & {
+    justify-content: center;
+    padding-inline: 0;
   }
 }
+
+.label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  .collapsed & {
+    display: none;
+  }
+}
+
+.caret {
+  .collapsed & {
+    display: none;
+  }
+}
+
+.user {
+  flex-shrink: 0;
+  padding: var(--oc-container-padding-md) var(--oc-container-padding-sm);
+  border-top: var(--oc-container-border-width) solid var(--oc-border-popover);
+}
+
+.user-button {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--oc-spacing-2);
+  width: 100%;
+  padding: calc(var(--oc-spacing-1) * 1.5);
+  border: 0;
+  border-radius: var(--oc-control-radius-md);
+  background: none;
+  color: var(--oc-foreground);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--oc-item-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--oc-ring);
+    outline-offset: -2px;
+  }
+
+  .collapsed & {
+    justify-content: center;
+    padding-inline: 0;
+  }
+}
+
+.user-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: var(--oc-font-size-xs);
+  line-height: var(--oc-line-height-tight);
+  white-space: nowrap;
+
+  .collapsed & {
+    display: none;
+  }
+}
+
+.user-name {
+  font-weight: var(--oc-font-weight-emphasis);
+}
+
+.user-meta {
+  color: var(--oc-muted-foreground);
+}
+
+.user-chevron {
+  flex-shrink: 0;
+
+  .collapsed & {
+    display: none;
+  }
+}
+
+// ---- Top bar and content ----------------------------------------------------------------------
 
 .main {
   display: flex;

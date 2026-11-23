@@ -1,7 +1,14 @@
 // Mock tenant data for the Meridian Brands demo, taken from the v0 prototype
 // (docs/v0-reference.md). Everything here is fictional.
 
-export const SIGNED_IN_USER = { name: 'Amara Reyes', firstName: 'Amara', initials: 'AR' };
+export const SIGNED_IN_USER = {
+  name: 'Amara Reyes',
+  firstName: 'Amara',
+  initials: 'AR',
+  role: 'Privacy Program Manager',
+};
+
+export const TENANT = 'Meridian Brands';
 
 export interface ProfileRow {
   label: string;

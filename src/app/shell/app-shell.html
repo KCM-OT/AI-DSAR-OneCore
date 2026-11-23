@@ -1,28 +1,95 @@
-<aside class="sidebar">
-  <div class="brand">
-    <button class="apps" type="button" aria-label="OneTrust apps">
-      <oc-icon name="grid-round" size="sm" />
-    </button>
-    <img src="onetrust-logo-white.svg" alt="OneTrust" height="20" />
-  </div>
-  <nav aria-labelledby="module-name">
-    <p id="module-name" class="module">Privacy Rights Automation</p>
-    <ul>
-      @for (l of links; track l.path) {
-        <li>
-          <a [routerLink]="l.path" routerLinkActive="active" ariaCurrentWhenActive="page">
-            <oc-icon [name]="l.icon" size="sm" />
-            <span>{{ l.label }}</span>
-          </a>
-        </li>
+<aside class="sidebar" data-mode="dark" [class.collapsed]="collapsed()">
+  <div class="nav-scroll">
+    <div class="header">
+      @if (!collapsed()) {
+        <img class="logo" src="nav/onetrust-logo.svg" alt="OneTrust" width="116.508" height="16" />
       }
-    </ul>
-  </nav>
+      <button
+        oc-icon-button
+        variant="tertiary"
+        size="sm"
+        [label]="collapsed() ? 'Expand navigation' : 'Collapse navigation'"
+        [attr.aria-expanded]="!collapsed()"
+        (click)="collapsed.set(!collapsed())"
+      >
+        <oc-icon [name]="collapsed() ? 'sidebar-left' : 'sidebar-right'" variant="outline" />
+      </button>
+    </div>
+
+    <nav class="group module" aria-labelledby="nav-module">
+      <p id="nav-module" class="group-label">Privacy Rights: DSAR</p>
+      <ul>
+        @for (l of moduleLinks; track l.path) {
+          <li>
+            <a
+              class="nav-item"
+              [routerLink]="l.path"
+              routerLinkActive="active"
+              ariaCurrentWhenActive="page"
+              [attr.title]="collapsed() ? l.label : null"
+            >
+              <oc-icon [name]="l.icon" variant="outline" />
+              <span class="label">{{ l.label }}</span>
+              @if (l.hasMenu) {
+                <oc-icon class="caret" name="caret-right" variant="outline" size="lg" />
+              }
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+
+    <nav class="group" aria-labelledby="nav-workspaces">
+      <p id="nav-workspaces" class="group-label">Workspaces</p>
+      <ul>
+        <li>
+          <button
+            class="nav-item"
+            type="button"
+            [class.active]="chatOpen()"
+            [attr.aria-expanded]="chatOpen()"
+            [attr.title]="collapsed() ? 'Chat' : null"
+            (click)="chatOpen.set(!chatOpen())"
+          >
+            <img class="glyph" src="nav/chat.svg" alt="" width="20" height="20" />
+            <span class="label">Chat</span>
+            <oc-icon class="caret" name="caret-right" variant="outline" size="lg" />
+          </button>
+        </li>
+        @for (l of workspaceLinks; track l.path) {
+          <li>
+            <a
+              class="nav-item"
+              [routerLink]="l.path"
+              routerLinkActive="active"
+              ariaCurrentWhenActive="page"
+              [attr.title]="collapsed() ? l.label : null"
+            >
+              <oc-icon [name]="l.icon" variant="outline" />
+              <span class="label">{{ l.label }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+  </div>
+
+  <div class="user">
+    <button class="user-button" type="button" aria-label="Open user menu">
+      <oc-avatar [initials]="user.initials" [label]="user.name" [showTooltip]="false" />
+      <span class="user-text">
+        <span class="user-name">{{ user.name }}</span>
+        <span class="user-meta">{{ user.role }}</span>
+        <span class="user-meta">{{ tenant }}</span>
+      </span>
+      <img class="user-chevron" src="nav/user-chevron.svg" alt="" width="13.9986" height="13.9986" />
+    </button>
+  </div>
 </aside>
 
 <div class="main">
   <header class="topbar">
-    <span class="tenant">Meridian Brands</span>
+    <span class="tenant">{{ tenant }}</span>
     <div class="tools">
       <button oc-icon-button variant="tertiary" size="sm" label="Search">
         <oc-icon name="magnifying-glass" />

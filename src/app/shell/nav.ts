@@ -4,17 +4,35 @@ export interface NavLink {
   label: string;
   path: string;
   icon: OcIconName;
+  /** Shows a caret: the item has its own pages (Setup) or opens a secondary menu (Chat). */
+  hasMenu?: boolean;
 }
 
-// Sidebar of the Privacy Rights Automation module, as in the v0 demo.
-export const NAV_LINKS: readonly NavLink[] = [
+// Left navigation from the DSR 2026 Figma file ("Left Nav - DSAR", node 464:15550).
+
+/** Module pages of Privacy Rights: DSAR. */
+export const MODULE_LINKS: readonly NavLink[] = [
   { label: 'Dashboard', path: '/dashboard', icon: 'gauge' },
-  { label: 'Reports', path: '/reports', icon: 'chart-column' },
+  { label: 'Reports', path: '/reports', icon: 'area-chart' },
+  { label: 'Requests', path: '/requests', icon: 'ticket' },
   { label: 'Subtasks', path: '/subtasks', icon: 'list-check' },
-  { label: 'Setup', path: '/setup', icon: 'wrench' },
-  { label: 'Settings', path: '/settings', icon: 'gear' },
+  { label: 'Setup', path: '/setup', icon: 'gear', hasMenu: true },
+  { label: 'Settings', path: '/settings', icon: 'sliders' },
 ];
 
+/**
+ * Cross-product workspaces. Chat is not a link: it opens a secondary menu (still to be designed),
+ * so it is rendered as a button and has no icon in OneCore's set (its glyph is public/nav/chat.svg).
+ */
+export const WORKSPACE_LINKS: readonly NavLink[] = [
+  { label: 'Search', path: '/search', icon: 'magnifying-glass' },
+  { label: 'Inbox', path: '/inbox', icon: 'inbox' },
+  { label: 'Tasks', path: '/tasks', icon: 'clipboard-list' },
+  { label: 'Notifications', path: '/notifications', icon: 'bell' },
+];
+
+const ALL_LINKS = [...MODULE_LINKS, ...WORKSPACE_LINKS];
+
 export function findNavLink(url: string): NavLink | undefined {
-  return NAV_LINKS.find((l) => url === l.path || url.startsWith(l.path + '/'));
+  return ALL_LINKS.find((l) => url === l.path || url.startsWith(l.path + '/'));
 }

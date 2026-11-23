@@ -24,8 +24,13 @@ with OneCore components; its code is a reference, not something to copy in.
 The v0 demo is mapped step by step in `docs/v0-reference.md` (copy, mock data, port decisions).
 Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
 
-- Shell (`src/app/shell/`): dark module sidebar (Privacy Rights Automation) and tenant top bar.
-  Routes without a page render `pages/placeholder.ts`.
+- Shell (`src/app/shell/`): left navigation from the DSR 2026 Figma file
+  (https://www.figma.com/design/TsBLUuUoHuzy2DyMuN7NuY/DSR-2026?node-id=464-15550), with the
+  groups "Privacy Rights: DSAR" and "Workspaces", a user block, and a collapse toggle; plus the
+  tenant top bar. The sidebar sets `data-mode="dark"`, so it uses dark-mode `--oc-*` tokens. Its
+  links are in `shell/nav.ts`. Chat is a button that toggles `chatOpen`; its secondary menu is
+  still to come. Figma assets that have no OneCore icon (logo, chat glyph, user chevron) are in
+  `public/nav/`. Routes without a page render `pages/placeholder.ts`.
 - `/setup`: Setup landing (agent-led or manual setup, program overview, configurations).
 - `/setup/agent`: Privacy Agent conversation (`oc-assistant-thread`) with a steps rail. The agent's
   turns are scripted in `STAGES` and streamed word by word with `[ocStream]`; anything the user sends
