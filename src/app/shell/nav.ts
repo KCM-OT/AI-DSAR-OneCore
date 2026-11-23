@@ -31,7 +31,13 @@ export const WORKSPACE_LINKS: readonly NavLink[] = [
   { label: 'Notifications', path: '/notifications', icon: 'bell' },
 ];
 
-const ALL_LINKS = [...MODULE_LINKS, ...WORKSPACE_LINKS];
+/** Pages reached from the Chat workspace menu (labels for the placeholder page). */
+const CHAT_LINKS: readonly NavLink[] = [
+  { label: 'New chat', path: '/chats/new', icon: 'plus' },
+  { label: 'Chats', path: '/chats', icon: 'plus' },
+];
+
+const ALL_LINKS = [...MODULE_LINKS, ...WORKSPACE_LINKS, ...CHAT_LINKS];
 
 export function findNavLink(url: string): NavLink | undefined {
   return ALL_LINKS.find((l) => url === l.path || url.startsWith(l.path + '/'));

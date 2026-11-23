@@ -28,9 +28,11 @@ Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
   (https://www.figma.com/design/TsBLUuUoHuzy2DyMuN7NuY/DSR-2026?node-id=464-15550), with the
   groups "Privacy Rights: DSAR" and "Workspaces", a user block, and a collapse toggle; plus the
   tenant top bar. The sidebar sets `data-mode="dark"`, so it uses dark-mode `--oc-*` tokens. Its
-  links are in `shell/nav.ts`. Chat is a button that toggles `chatOpen`; its secondary menu is
-  still to come. Figma assets that have no OneCore icon (logo, chat glyph, user chevron) are in
-  `public/nav/`. Routes without a page render `pages/placeholder.ts`.
+  links are in `shell/nav.ts`. Chat opens the Chat workspace menu (Figma node 467:17316: back,
+  New chat, All chats, and the chat list from `CHAT_THREADS`): the two menus sit on a track that
+  slides left, while the header and user block stay put. Any `/chats` URL opens it. Figma assets
+  with no OneCore icon (logo, chat glyph, activity dots, user chevron) are in `public/nav/`.
+  Routes without a page render `pages/placeholder.ts`.
 - `/setup`: Setup landing (agent-led or manual setup, program overview, configurations).
 - `/setup/agent`: Privacy Agent conversation (`oc-assistant-thread`) with a steps rail. The agent's
   turns are scripted in `STAGES` and streamed word by word with `[ocStream]`; anything the user sends

@@ -128,3 +128,18 @@ export const SETUP_STEPS = [
   'Suggested agents',
   'Integrations',
 ] as const;
+
+export interface ChatThread {
+  id: string;
+  title: string;
+  /** Has activity the user hasn't seen (filled dot in the Chat menu). */
+  unread: boolean;
+}
+
+// Chats listed in the Chat workspace menu. The Figma frame uses placeholder titles; these are
+// Meridian-flavoured stand-ins until the chat screens are designed.
+export const CHAT_THREADS: readonly ChatThread[] = [
+  { id: 'request-4207', title: 'Request #4207: possible duplicate requester', unread: true },
+  { id: 'warehouse-search', title: 'Internal warehouse search with Daniel Okafor', unread: false },
+  { id: 'cpra-playbook', title: 'CPRA deadlines in the playbook', unread: false },
+];

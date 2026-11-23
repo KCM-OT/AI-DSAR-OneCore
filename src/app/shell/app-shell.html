@@ -1,77 +1,163 @@
 <aside class="sidebar" data-mode="dark" [class.collapsed]="collapsed()">
-  <div class="nav-scroll">
-    <div class="header">
-      @if (!collapsed()) {
-        <img class="logo" src="nav/onetrust-logo.svg" alt="OneTrust" width="116.508" height="16" />
-      }
-      <button
-        oc-icon-button
-        variant="tertiary"
-        size="sm"
-        [label]="collapsed() ? 'Expand navigation' : 'Collapse navigation'"
-        [attr.aria-expanded]="!collapsed()"
-        (click)="collapsed.set(!collapsed())"
-      >
-        <oc-icon [name]="collapsed() ? 'sidebar-left' : 'sidebar-right'" variant="outline" />
-      </button>
-    </div>
+  <div class="header">
+    @if (!collapsed()) {
+      <img class="logo" src="nav/onetrust-logo.svg" alt="OneTrust" width="116.508" height="16" />
+    }
+    <button
+      oc-icon-button
+      variant="tertiary"
+      size="sm"
+      [label]="collapsed() ? 'Expand navigation' : 'Collapse navigation'"
+      [attr.aria-expanded]="!collapsed()"
+      (click)="collapsed.set(!collapsed())"
+    >
+      <oc-icon [name]="collapsed() ? 'sidebar-left' : 'sidebar-right'" variant="outline" />
+    </button>
+  </div>
 
-    <nav class="group module" aria-labelledby="nav-module">
-      <p id="nav-module" class="group-label">Privacy Rights: DSAR</p>
-      <ul>
-        @for (l of moduleLinks; track l.path) {
-          <li>
-            <a
-              class="nav-item"
-              [routerLink]="l.path"
-              routerLinkActive="active"
-              ariaCurrentWhenActive="page"
-              [attr.title]="collapsed() ? l.label : null"
-            >
-              <oc-icon [name]="l.icon" variant="outline" />
-              <span class="label">{{ l.label }}</span>
-              @if (l.hasMenu) {
+  <!-- Two menus side by side: the main menu, and the Chat workspace menu that slides in from the
+       right when Chat is opened (the main menu slides off to the left). -->
+  <div class="panels">
+    <div class="track" [class.show-chat]="chatOpen()">
+      <div class="panel" [inert]="chatOpen()">
+        <nav class="group divided" aria-labelledby="nav-module">
+          <p id="nav-module" class="group-label">Privacy Rights: DSAR</p>
+          <ul>
+            @for (l of moduleLinks; track l.path) {
+              <li>
+                <a
+                  class="nav-item"
+                  [routerLink]="l.path"
+                  routerLinkActive="active"
+                  ariaCurrentWhenActive="page"
+                  [attr.title]="collapsed() ? l.label : null"
+                >
+                  <oc-icon [name]="l.icon" variant="outline" />
+                  <span class="label">{{ l.label }}</span>
+                  @if (l.hasMenu) {
+                    <oc-icon class="caret" name="caret-right" variant="outline" size="lg" />
+                  }
+                </a>
+              </li>
+            }
+          </ul>
+        </nav>
+
+        <nav class="group" aria-labelledby="nav-workspaces">
+          <p id="nav-workspaces" class="group-label">Workspaces</p>
+          <ul>
+            <li>
+              <button
+                #chatButton
+                class="nav-item"
+                type="button"
+                aria-controls="chat-menu"
+                [attr.aria-expanded]="chatOpen()"
+                [attr.title]="collapsed() ? 'Chat' : null"
+                (click)="openChat()"
+              >
+                <img class="glyph" src="nav/chat.svg" alt="" width="20" height="20" />
+                <span class="label">Chat</span>
                 <oc-icon class="caret" name="caret-right" variant="outline" size="lg" />
-              }
-            </a>
-          </li>
-        }
-      </ul>
-    </nav>
+              </button>
+            </li>
+            @for (l of workspaceLinks; track l.path) {
+              <li>
+                <a
+                  class="nav-item"
+                  [routerLink]="l.path"
+                  routerLinkActive="active"
+                  ariaCurrentWhenActive="page"
+                  [attr.title]="collapsed() ? l.label : null"
+                >
+                  <oc-icon [name]="l.icon" variant="outline" />
+                  <span class="label">{{ l.label }}</span>
+                </a>
+              </li>
+            }
+          </ul>
+        </nav>
+      </div>
 
-    <nav class="group" aria-labelledby="nav-workspaces">
-      <p id="nav-workspaces" class="group-label">Workspaces</p>
-      <ul>
-        <li>
-          <button
-            class="nav-item"
-            type="button"
-            [class.active]="chatOpen()"
-            [attr.aria-expanded]="chatOpen()"
-            [attr.title]="collapsed() ? 'Chat' : null"
-            (click)="chatOpen.set(!chatOpen())"
-          >
-            <img class="glyph" src="nav/chat.svg" alt="" width="20" height="20" />
-            <span class="label">Chat</span>
-            <oc-icon class="caret" name="caret-right" variant="outline" size="lg" />
-          </button>
-        </li>
-        @for (l of workspaceLinks; track l.path) {
-          <li>
-            <a
-              class="nav-item"
-              [routerLink]="l.path"
-              routerLinkActive="active"
-              ariaCurrentWhenActive="page"
-              [attr.title]="collapsed() ? l.label : null"
-            >
-              <oc-icon [name]="l.icon" variant="outline" />
-              <span class="label">{{ l.label }}</span>
-            </a>
-          </li>
+      <div id="chat-menu" class="panel" [inert]="!chatOpen()">
+        <nav class="group divided" aria-label="Chat">
+          <ul>
+            <li>
+              <button
+                #backButton
+                class="nav-item"
+                type="button"
+                [attr.title]="collapsed() ? 'Back to main menu' : null"
+                (click)="closeChat()"
+              >
+                <oc-icon name="caret-left" variant="outline" size="lg" />
+                <span class="label">Back to main menu</span>
+              </button>
+            </li>
+            <li>
+              <a
+                class="nav-item"
+                routerLink="/chats/new"
+                routerLinkActive="active"
+                ariaCurrentWhenActive="page"
+                [attr.title]="collapsed() ? 'New chat' : null"
+              >
+                <oc-icon name="plus" variant="outline" size="lg" />
+                <span class="label">New chat</span>
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-item"
+                routerLink="/chats"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+                ariaCurrentWhenActive="page"
+                [attr.title]="collapsed() ? 'All chats' : null"
+              >
+                <img class="glyph" src="nav/chat.svg" alt="" width="20" height="20" />
+                <span class="label">All chats</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        @if (!collapsed()) {
+          <section class="group" aria-labelledby="nav-chats">
+            <div class="group-label chats-label">
+              <h2 id="nav-chats">Chats</h2>
+              <button oc-icon-button variant="tertiary" size="xs" label="Search chats">
+                <oc-icon name="magnifying-glass" variant="outline" />
+              </button>
+              <button oc-icon-button variant="tertiary" size="xs" label="Filter chats">
+                <oc-icon name="sliders" variant="outline" />
+              </button>
+            </div>
+            <ul class="chat-list">
+              @for (c of chats; track c.id) {
+                <li>
+                  <a
+                    class="chat-item"
+                    [routerLink]="['/chats', c.id]"
+                    routerLinkActive="active"
+                    ariaCurrentWhenActive="page"
+                    [title]="c.title"
+                  >
+                    <img
+                      [src]="c.unread ? 'nav/dot-active.svg' : 'nav/dot-idle.svg'"
+                      [alt]="c.unread ? 'New activity' : ''"
+                      width="8"
+                      height="8"
+                    />
+                    <span class="label">{{ c.title }}</span>
+                  </a>
+                </li>
+              }
+            </ul>
+          </section>
         }
-      </ul>
-    </nav>
+      </div>
+    </div>
   </div>
 
   <div class="user">
