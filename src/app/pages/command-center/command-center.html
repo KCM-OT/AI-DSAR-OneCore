@@ -1,0 +1,263 @@
+<app-page-header title="Command center">
+  <p class="lede">Deadlines, volume and what needs action across your privacy rights program.</p>
+  <a slot="actions" oc-button variant="primary" routerLink="/requests">
+    <oc-icon slot="leading" name="plus" />
+    Create request
+  </a>
+</app-page-header>
+
+<div class="body">
+  <!-- Global filters -->
+  <div class="filters" role="group" aria-label="Filters">
+    @for (f of filters; track f.id) {
+      <button oc-button variant="secondary" size="sm" [ocMenuTrigger]="menu">
+        <oc-icon slot="leading" [name]="f.icon" />
+        {{ labelOf(f.options, f.value()) }}
+        <oc-icon slot="trailing" name="chevron-down" />
+      </button>
+      <ng-template #menu>
+        <oc-menu>
+          <div ocMenuRadioGroup [value]="f.value()" (valueChange)="f.value.set($event)">
+            @for (o of f.options; track o.value) {
+              <button oc-menu-item-radio [value]="o.value">{{ o.label }}</button>
+            }
+          </div>
+        </oc-menu>
+      </ng-template>
+    }
+    <span class="updated">Updated 2 minutes ago</span>
+  </div>
+
+  <!-- 1. Health snapshot -->
+  <section class="kpis" aria-label="Health snapshot">
+    @for (k of kpis; track k.label) {
+      <div class="kpi">
+        <span class="kpi-label">{{ k.label }}</span>
+        <span class="kpi-value">{{ k.value }}</span>
+        @if (k.parts) {
+          <ul class="kpi-parts">
+            @for (p of k.parts; track p.label) {
+              <li><span>{{ p.label }}</span> <strong>{{ p.value }}</strong></li>
+            }
+          </ul>
+        } @else {
+          <span class="kpi-detail">{{ k.detail }}</span>
+        }
+        @if (k.change) {
+          <span class="kpi-change" [attr.data-trend]="k.trend">
+            @if (k.trend === 'good') {
+              <oc-icon name="circle-check" size="xs" />
+            } @else if (k.trend === 'bad') {
+              <oc-icon name="triangle-exclamation" size="xs" />
+            }
+            {{ k.change }}
+          </span>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- 2. Needs attention (left) and 3. Volume (right) -->
+  <div class="row middle">
+    <oc-card class="attention">
+      <oc-card-header>
+        <oc-card-title>
+          <h2>Needs attention <oc-badge size="sm" color="destructive">{{ attentionTotal }}</oc-badge></h2>
+        </oc-card-title>
+        <oc-card-description>Ordered by deadline risk. Overdue work comes first.</oc-card-description>
+      </oc-card-header>
+      <oc-card-content>
+        <div class="chips" role="group" aria-label="Filter needs attention">
+          <button
+            class="chip"
+            type="button"
+            [attr.aria-pressed]="attentionFilter() === 'all'"
+            (click)="attentionFilter.set('all')"
+          >
+            All <span>{{ attentionTotal }}</span>
+          </button>
+          @for (c of attentionCounts(); track c.kind) {
+            <button
+              class="chip"
+              type="button"
+              [attr.aria-pressed]="attentionFilter() === c.kind"
+              (click)="attentionFilter.set(c.kind)"
+            >
+              {{ attentionKinds[c.kind].label }} <span>{{ c.count }}</span>
+            </button>
+          }
+        </div>
+        <ul class="queue">
+          @for (a of attention(); track a.ref + a.title) {
+            <li>
+              <span class="queue-icon" [attr.data-kind]="a.kind">
+                <oc-icon [name]="attentionKinds[a.kind].icon" size="sm" />
+              </span>
+              <div class="queue-body">
+                <div class="queue-top">
+                  <oc-badge size="sm" [color]="attentionColor[a.kind]">
+                    {{ attentionKinds[a.kind].label }}
+                  </oc-badge>
+                  <span class="ref">{{ a.ref }}</span>
+                  <span class="due" [class.late]="a.kind === 'overdue'">{{ a.due }}</span>
+                </div>
+                <h3>{{ a.title }}</h3>
+                <p>{{ a.detail }}</p>
+              </div>
+              <a oc-button variant="secondary" size="sm" [routerLink]="a.link">{{ a.action }}</a>
+            </li>
+          }
+        </ul>
+      </oc-card-content>
+    </oc-card>
+
+    <oc-card class="volume">
+      <oc-card-header>
+        <oc-card-title><h2>Requests over time</h2></oc-card-title>
+        <oc-card-description>Monthly, by request type</oc-card-description>
+      </oc-card-header>
+      <oc-card-content>
+        <app-volume-chart [data]="monthly" />
+        <div class="share" aria-label="November mix by request type">
+          @for (s of typeShare(); track s.type) {
+            <span><span class="swatch" [style.background]="s.color"></span>{{ s.type }} {{ s.pct }}%</span>
+          }
+        </div>
+
+        <div class="mix">
+          <div class="mix-head">
+            <h3>Breakdown</h3>
+            <oc-toggle-button-group
+              aria-label="Break down by"
+              [value]="[mix()]"
+              (valueChange)="$event[0] && mix.set($any($event[0]))"
+            >
+              <button oc-toggle-button-group-item value="jurisdiction">Jurisdiction</button>
+              <button oc-toggle-button-group-item value="source">Source</button>
+            </oc-toggle-button-group>
+          </div>
+          <app-bar-list
+            [items]="mixItems()"
+            [label]="mix() === 'jurisdiction' ? 'Requests by jurisdiction' : 'Requests by source'"
+          />
+        </div>
+      </oc-card-content>
+    </oc-card>
+  </div>
+
+  <!-- 4. Pipeline and deadlines -->
+  <div class="row thirds">
+    <oc-card>
+      <oc-card-header>
+        <oc-card-title><h2>Pipeline</h2></oc-card-title>
+        <oc-card-description>Open requests by workflow stage</oc-card-description>
+      </oc-card-header>
+      <oc-card-content>
+        <app-bar-list [items]="pipeline" label="Open requests by stage" color="var(--oc-supportive-teal)" />
+      </oc-card-content>
+    </oc-card>
+
+    <oc-card>
+      <oc-card-header>
+        <oc-card-title><h2>Deadlines</h2></oc-card-title>
+        <oc-card-description>Open requests by time to legal deadline</oc-card-description>
+      </oc-card-header>
+      <oc-card-content>
+        <app-bar-list [items]="deadlines" label="Open requests by deadline" />
+      </oc-card-content>
+    </oc-card>
+
+    <oc-card>
+      <oc-card-header>
+        <oc-card-title><h2>Team workload</h2></oc-card-title>
+        <oc-card-description>Open requests and subtasks per person</oc-card-description>
+      </oc-card-header>
+      <oc-card-content>
+        <app-bar-list [items]="teamLoad" label="Open items per person" color="var(--oc-supportive-grey)" />
+      </oc-card-content>
+    </oc-card>
+  </div>
+
+  <!-- 5. My work -->
+  <oc-card class="my-work">
+    <oc-card-header>
+      <oc-card-title><h2 id="my-work-title">Assigned to me</h2></oc-card-title>
+      <oc-card-description>Your requests and subtasks. Select a column header to sort.</oc-card-description>
+    </oc-card-header>
+    <oc-card-content>
+      <oc-data-grid [table]="work" aria-labelledby="my-work-title" density="compact">
+        <ng-template ocDataGridCellDef="id" [table]="work" let-row="row">
+          <a class="id-link" [routerLink]="['/requests', row.original.id.split('-')[1]]">{{ row.original.id }}</a>
+        </ng-template>
+        <ng-template ocDataGridCellDef="type" [table]="work" let-row="row">
+          <span class="type"><span class="swatch" [style.background]="typeColors[row.original.type]"></span>{{ row.original.type }}</span>
+        </ng-template>
+        <ng-template ocDataGridCellDef="due" [table]="work" let-row="row">
+          <span [class.late]="row.original.dueIn < 0">{{ row.original.due }}</span>
+        </ng-template>
+      </oc-data-grid>
+    </oc-card-content>
+  </oc-card>
+
+  <!-- 6. Program setup health and 7. Activity and shortcuts -->
+  <div class="row thirds">
+    <oc-card>
+      <oc-card-header>
+        <oc-card-title><h2>Program setup health</h2></oc-card-title>
+        <oc-card-description>For admins. Measures from the Deployment Measures page.</oc-card-description>
+      </oc-card-header>
+      <oc-card-content>
+        <ul class="setup">
+          @for (m of setupHealth; track m.label) {
+            <li>
+              <div>
+                <a [routerLink]="m.link">{{ m.label }}</a>
+                <p>{{ m.detail }}</p>
+              </div>
+              <span class="setup-value">{{ m.value }}</span>
+              <oc-status size="sm" [intent]="setupIntent[m.state].intent" [label]="setupIntent[m.state].label" />
+            </li>
+          }
+        </ul>
+      </oc-card-content>
+    </oc-card>
+
+    <oc-card>
+      <oc-card-header>
+        <oc-card-title><h2>Recent activity</h2></oc-card-title>
+      </oc-card-header>
+      <oc-card-content>
+        <ol class="activity">
+          @for (e of activity; track e.text) {
+            <li>
+              <oc-icon [name]="e.icon" size="sm" />
+              <div>
+                <p>{{ e.text }}</p>
+                <span>{{ e.who }} · {{ e.time }}</span>
+              </div>
+            </li>
+          }
+        </ol>
+      </oc-card-content>
+    </oc-card>
+
+    <oc-card>
+      <oc-card-header>
+        <oc-card-title><h2>Saved views</h2></oc-card-title>
+      </oc-card-header>
+      <oc-card-content>
+        <ul class="views">
+          @for (v of savedViews; track v.label) {
+            <li>
+              <a [routerLink]="v.link">
+                <oc-icon name="filter" size="sm" />
+                <span>{{ v.label }}</span>
+                <strong>{{ v.count }}</strong>
+              </a>
+            </li>
+          }
+        </ul>
+      </oc-card-content>
+    </oc-card>
+  </div>
+</div>

@@ -1,0 +1,413 @@
+:host {
+  display: block;
+}
+
+.lede {
+  margin: 0;
+  color: var(--oc-muted-foreground);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oc-spacing-5);
+  padding: var(--oc-spacing-5);
+}
+
+h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--oc-spacing-2);
+  margin: 0;
+  font: inherit;
+}
+
+h3 {
+  margin: 0;
+  font-size: var(--oc-font-size-md);
+  font-weight: var(--oc-font-weight-emphasis);
+}
+
+.swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: var(--oc-spacing-1);
+  border-radius: 2px;
+}
+
+.late {
+  color: var(--oc-destructive);
+  font-weight: var(--oc-font-weight-emphasis);
+}
+
+// ---- Filters ---------------------------------------------------------------------------------
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--oc-spacing-2);
+}
+
+.updated {
+  margin-left: auto;
+  color: var(--oc-muted-foreground);
+  font-size: var(--oc-font-size-xs);
+}
+
+// ---- 1. KPI row ------------------------------------------------------------------------------
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--oc-spacing-3);
+
+  @media (max-width: 1280px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oc-spacing-1);
+  padding: var(--oc-spacing-4);
+  border: var(--oc-container-border-width) solid var(--oc-border);
+  border-radius: var(--oc-containers-radius-level-2);
+  background: var(--oc-card);
+}
+
+.kpi-label {
+  color: var(--oc-muted-foreground);
+  font-size: var(--oc-font-size-sm);
+}
+
+.kpi-value {
+  font-size: var(--oc-font-size-3xl);
+  font-weight: var(--oc-font-weight-emphasis);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--oc-line-height-tight);
+}
+
+.kpi-detail {
+  color: var(--oc-muted-foreground);
+  font-size: var(--oc-font-size-xs);
+}
+
+.kpi-parts {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--oc-font-size-xs);
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    color: var(--oc-muted-foreground);
+  }
+
+  strong {
+    color: var(--oc-foreground);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.kpi-change {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--oc-spacing-1);
+  margin-top: auto;
+  padding-top: var(--oc-spacing-1);
+  color: var(--oc-muted-foreground);
+  font-size: var(--oc-font-size-xs);
+
+  &[data-trend='good'] {
+    color: var(--oc-success);
+  }
+
+  &[data-trend='bad'] {
+    color: var(--oc-destructive);
+  }
+}
+
+// ---- Card rows -------------------------------------------------------------------------------
+
+.row {
+  display: grid;
+  gap: var(--oc-spacing-5);
+  align-items: start;
+
+  &.middle {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  }
+
+  &.thirds {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @media (max-width: 1100px) {
+    &.middle,
+    &.thirds {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+// ---- 2. Needs attention ----------------------------------------------------------------------
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--oc-spacing-2);
+  margin-bottom: var(--oc-spacing-3);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--oc-spacing-1);
+  padding: var(--oc-spacing-1) var(--oc-spacing-3);
+  border: var(--oc-container-border-width) solid var(--oc-border);
+  border-radius: var(--oc-control-radius-full);
+  background: var(--oc-background);
+  color: var(--oc-foreground);
+  font: inherit;
+  font-size: var(--oc-font-size-xs);
+  cursor: pointer;
+
+  span {
+    color: var(--oc-muted-foreground);
+  }
+
+  &:hover {
+    background: var(--oc-secondary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--oc-ring);
+    outline-offset: 1px;
+  }
+
+  &[aria-pressed='true'] {
+    border-color: var(--oc-foreground);
+    background: var(--oc-foreground);
+    color: var(--oc-background);
+
+    span {
+      color: inherit;
+    }
+  }
+}
+
+.queue {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: var(--oc-spacing-3);
+    padding: var(--oc-spacing-3) 0;
+    border-top: var(--oc-container-border-width) solid var(--oc-secondary);
+  }
+}
+
+.queue-icon {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--oc-control-radius-md);
+  background: var(--oc-secondary);
+  color: var(--oc-muted-foreground);
+
+  &[data-kind='overdue'],
+  &[data-kind='integration'] {
+    color: var(--oc-destructive);
+  }
+}
+
+.queue-body {
+  flex: 1;
+  min-width: 0;
+
+  p {
+    margin: 2px 0 0;
+    color: var(--oc-muted-foreground);
+    font-size: var(--oc-font-size-sm);
+  }
+}
+
+.queue-top {
+  display: flex;
+  align-items: center;
+  gap: var(--oc-spacing-2);
+  margin-bottom: var(--oc-spacing-1);
+  font-size: var(--oc-font-size-xs);
+
+  .ref {
+    color: var(--oc-muted-foreground);
+  }
+
+  .due {
+    margin-left: auto;
+    color: var(--oc-muted-foreground);
+    white-space: nowrap;
+  }
+
+  .due.late {
+    color: var(--oc-destructive);
+  }
+}
+
+// ---- 3. Volume and mix ----------------------------------------------------------------------
+
+.share {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--oc-spacing-2) var(--oc-spacing-4);
+  margin-top: var(--oc-spacing-3);
+  color: var(--oc-muted-foreground);
+  font-size: var(--oc-font-size-xs);
+}
+
+.mix {
+  margin-top: var(--oc-spacing-5);
+  padding-top: var(--oc-spacing-4);
+  border-top: var(--oc-container-border-width) solid var(--oc-secondary);
+}
+
+.mix-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--oc-spacing-3);
+  margin-bottom: var(--oc-spacing-3);
+}
+
+// ---- 5. My work -----------------------------------------------------------------------------
+
+.my-work oc-data-grid {
+  display: block;
+  max-height: 320px;
+}
+
+.id-link {
+  color: var(--oc-foreground);
+  font-weight: var(--oc-font-weight-emphasis);
+}
+
+.type {
+  display: inline-flex;
+  align-items: center;
+}
+
+// ---- 6. Setup health ------------------------------------------------------------------------
+
+.setup {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--oc-spacing-1) var(--oc-spacing-3);
+    padding: var(--oc-spacing-3) 0;
+    border-top: var(--oc-container-border-width) solid var(--oc-secondary);
+
+    &:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+  }
+
+  a {
+    color: var(--oc-foreground);
+    font-size: var(--oc-font-size-sm);
+    font-weight: var(--oc-font-weight-emphasis);
+  }
+
+  p {
+    margin: 2px 0 0;
+    color: var(--oc-muted-foreground);
+    font-size: var(--oc-font-size-xs);
+  }
+
+  oc-status {
+    grid-column: 1 / -1;
+  }
+}
+
+.setup-value {
+  font-size: var(--oc-font-size-xl);
+  font-weight: var(--oc-font-weight-emphasis);
+  font-variant-numeric: tabular-nums;
+}
+
+// ---- 7. Activity and saved views ----------------------------------------------------------
+
+.activity,
+.views {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.activity li {
+  display: flex;
+  gap: var(--oc-spacing-3);
+  padding: var(--oc-spacing-2) 0;
+
+  oc-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--oc-muted-foreground);
+  }
+
+  p {
+    margin: 0;
+    font-size: var(--oc-font-size-sm);
+  }
+
+  span {
+    color: var(--oc-muted-foreground);
+    font-size: var(--oc-font-size-xs);
+  }
+}
+
+.views a {
+  display: flex;
+  align-items: center;
+  gap: var(--oc-spacing-2);
+  padding: var(--oc-spacing-2);
+  border-radius: var(--oc-control-radius-md);
+  color: var(--oc-foreground);
+  font-size: var(--oc-font-size-sm);
+  text-decoration: none;
+
+  oc-icon {
+    color: var(--oc-muted-foreground);
+  }
+
+  span {
+    flex: 1;
+  }
+
+  strong {
+    font-variant-numeric: tabular-nums;
+  }
+
+  &:hover {
+    background: var(--oc-secondary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--oc-ring);
+  }
+}

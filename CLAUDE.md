@@ -48,8 +48,21 @@ Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
   the first shortcut and the first task card both link to `/setup/agent`. Sending a prompt opens
   `/chats/new`, which is a placeholder for now.
 
+- `/command-center`: the privacy leader's home, laid out from Kevin's research-based spec:
+  - global filters (date range, organization, request type, jurisdiction)
+  - KPI health snapshot
+  - Needs attention queue (with filter chips) beside Requests over time, a stacked monthly
+    chart with a jurisdiction/source breakdown
+  - pipeline, deadlines and team workload
+  - an "Assigned to me" `oc-data-grid`
+  - setup health, recent activity and saved views
+
+  The data is in `src/app/data/command-center.ts`. The filters change only their labels.
+  Request-type chart colours are fixed (Access blue, Deletion pink, Opt-out yellow, Correction
+  purple, from `--oc-supportive-*`). That order passed the dataviz colour-blind validator; keep it.
+
 Not built yet: `/setup/flow`, `/setup/workflows`, `/intake`, `/requests/4207` (+ `/subtask`,
-`/redaction`), `/report` (page images are in `public/report-pages/`), `/command-center` (the v0 `/dashboard`).
+`/redaction`), `/report` (page images are in `public/report-pages/`). The v0 `/dashboard` is now `/command-center`.
 
 ## OneCore
 

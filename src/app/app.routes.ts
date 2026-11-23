@@ -18,6 +18,12 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/setup/agent/setup-agent').then((m) => m.SetupAgent),
       },
       {
+        path: 'command-center',
+        title: 'Command center | Privacy Rights Automation',
+        loadComponent: () =>
+          import('./pages/command-center/command-center').then((m) => m.CommandCenter),
+      },
+      {
         path: 'chats',
         pathMatch: 'full',
         title: 'Chat | Privacy Rights Automation',
