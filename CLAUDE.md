@@ -23,6 +23,7 @@ with OneCore components; its code is a reference, not something to copy in.
 `npm run deploy:preview` or `npm run deploy` (production). Each runs `vercel build` locally, where
 Nexus is reachable, then uploads with `vercel deploy --prebuilt`.
 - Vercel project: onetrustpmux-v0/ai-dsar-onecore, set to Node 24.x in the project settings.
+  Production: https://ai-dsar-onecore.vercel.app (public; no Vercel sign-in needed).
 - The GitHub repo is deliberately not connected, so pushing to GitHub does not deploy. A
   Vercel-side build would fail without Nexus.
 - `vercel.json` rewrites every path to `index.html` so deep links work.
