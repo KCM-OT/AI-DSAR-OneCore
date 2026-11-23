@@ -1,0 +1,257 @@
+:host {
+  display: block;
+}
+
+.page {
+  box-sizing: border-box;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: calc(var(--oc-spacing-8) * 2) var(--oc-spacing-5) var(--oc-spacing-8);
+}
+
+.greeting {
+  margin: 0 0 var(--oc-spacing-6);
+  font-size: var(--oc-font-size-3xl);
+  font-weight: var(--oc-font-weight-emphasis);
+  text-align: center;
+}
+
+// ---- Composer --------------------------------------------------------------------------------
+
+// The thread only provides context for the composer and suggestion chips; it isn't a conversation.
+oc-assistant-thread.ask {
+  display: block;
+  height: auto;
+}
+
+.composer-card oc-assistant-composer {
+  display: block;
+  position: relative;
+  box-shadow: var(--oc-shadow-raised);
+}
+
+.scope-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--oc-spacing-1);
+  margin: 0 var(--oc-spacing-3);
+  padding: var(--oc-spacing-1) var(--oc-spacing-2);
+  border-radius: 0 0 var(--oc-containers-radius-level-3) var(--oc-containers-radius-level-3);
+  background: var(--oc-secondary);
+
+  .library {
+    margin-left: auto;
+  }
+}
+
+.shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--oc-spacing-2);
+  margin-top: var(--oc-spacing-5);
+
+  // The main action: finish the Privacy Agent setup.
+  .main {
+    border-color: var(--oc-accent);
+    color: var(--oc-accent);
+
+    oc-icon {
+      color: var(--oc-accent);
+    }
+  }
+}
+
+// ---- Work tabs -------------------------------------------------------------------------------
+
+.work {
+  display: block;
+  margin-top: calc(var(--oc-spacing-8) * 2);
+
+  oc-badge {
+    margin-left: var(--oc-spacing-1);
+  }
+}
+
+.intro {
+  margin: var(--oc-spacing-4) 0 var(--oc-spacing-3);
+  color: var(--oc-muted-foreground);
+  font-size: var(--oc-font-size-sm);
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oc-spacing-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  gap: var(--oc-spacing-3);
+  padding: var(--oc-spacing-4);
+  border: var(--oc-container-border-width) solid var(--oc-border);
+  border-radius: var(--oc-containers-radius-level-2);
+  background: var(--oc-card);
+
+  &.primary {
+    border-color: var(--oc-accent);
+    box-shadow: var(--oc-shadow-raised);
+
+    .card-icon {
+      border-color: var(--oc-accent);
+      color: var(--oc-accent);
+    }
+  }
+}
+
+.card-icon {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: var(--oc-container-border-width) solid var(--oc-border);
+  border-radius: var(--oc-control-radius-md);
+  color: var(--oc-muted-foreground);
+}
+
+.card-body {
+  flex: 1;
+  min-width: 0;
+
+  h3 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--oc-spacing-2);
+    margin: 0;
+    font-size: var(--oc-font-size-md);
+    font-weight: var(--oc-font-weight-emphasis);
+  }
+
+  p {
+    margin: var(--oc-spacing-1) 0 0;
+    color: var(--oc-muted-foreground);
+    font-size: var(--oc-font-size-sm);
+  }
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--oc-spacing-4);
+  margin-top: var(--oc-spacing-3);
+  color: var(--oc-muted-foreground);
+  font-size: var(--oc-font-size-xs);
+
+  .wait {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--oc-spacing-1);
+  }
+
+  > :last-child {
+    margin-left: auto;
+  }
+}
+
+.card-action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--oc-spacing-1);
+  color: var(--oc-foreground);
+  font-size: var(--oc-font-size-sm);
+  font-weight: var(--oc-font-weight-emphasis);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: var(--oc-spacing-3);
+  margin-top: var(--oc-spacing-3);
+  color: var(--oc-muted-foreground);
+  font-size: var(--oc-font-size-xs);
+
+  oc-progress {
+    flex: 1;
+  }
+}
+
+.more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--oc-spacing-3);
+  margin-top: var(--oc-spacing-4);
+  color: var(--oc-muted-foreground);
+  font-size: var(--oc-font-size-sm);
+}
+
+// ---- Timeline (Privacy Agent handled) ------------------------------------------------------
+
+.timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: grid;
+    grid-template-columns: 72px 12px 1fr;
+    gap: var(--oc-spacing-4);
+    position: relative;
+    padding-bottom: var(--oc-spacing-6);
+
+    // The connecting line between dots.
+    &:not(:last-child)::before {
+      content: '';
+      position: absolute;
+      top: 16px;
+      bottom: 0;
+      left: calc(72px + var(--oc-spacing-4) + 5px);
+      width: 2px;
+      background: var(--oc-border);
+    }
+  }
+
+  .time {
+    padding-top: 2px;
+    color: var(--oc-muted-foreground);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--oc-font-size-xs);
+    text-align: right;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    margin-top: 4px;
+    border: 2px solid var(--oc-success);
+    border-radius: var(--oc-control-radius-full);
+    background: var(--oc-success);
+  }
+
+  .review .dot {
+    border-color: var(--oc-supportive-orange);
+    background: var(--oc-background);
+  }
+
+  h3 {
+    margin: 0;
+    font-size: var(--oc-font-size-md);
+    font-weight: var(--oc-font-weight-emphasis);
+  }
+
+  p {
+    margin: var(--oc-spacing-1) 0 var(--oc-spacing-2);
+    color: var(--oc-muted-foreground);
+    font-size: var(--oc-font-size-sm);
+  }
+}

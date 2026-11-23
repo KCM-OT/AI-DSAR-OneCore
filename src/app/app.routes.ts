@@ -17,6 +17,12 @@ export const routes: Routes = [
         title: 'Privacy Agent | Privacy Rights Automation',
         loadComponent: () => import('./pages/setup/agent/setup-agent').then((m) => m.SetupAgent),
       },
+      {
+        path: 'chats',
+        pathMatch: 'full',
+        title: 'Chat | Privacy Rights Automation',
+        loadComponent: () => import('./pages/chat/chat-home').then((m) => m.ChatHome),
+      },
       // Screens not rebuilt yet render a "not built yet" placeholder.
       {
         path: '**',

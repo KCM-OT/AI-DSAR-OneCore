@@ -139,7 +139,7 @@ export interface ChatThread {
 // Chats listed in the Chat workspace menu. The Figma frame uses placeholder titles; these are
 // Meridian-flavoured stand-ins until the chat screens are designed.
 export const CHAT_THREADS: readonly ChatThread[] = [
-  { id: 'request-4207', title: 'Request #4207: possible duplicate requester', unread: true },
-  { id: 'warehouse-search', title: 'Internal warehouse search with Daniel Okafor', unread: false },
+  { id: 'ar-4207', title: 'AR-4207 · Marcus Bell access request', unread: true },
+  { id: 'dr-4215', title: 'DR-4215 possible duplicate', unread: false },
   { id: 'cpra-playbook', title: 'CPRA deadlines in the playbook', unread: false },
 ];

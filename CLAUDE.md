@@ -38,6 +38,16 @@ Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
   turns are scripted in `STAGES` and streamed word by word with `[ocStream]`; anything the user sends
   (or a suggestion / block button) moves to the next stage. Ends with a link to `/setup/flow`.
 
+- `/chats`: Chat home, the Privacy Agent's start screen. Its layout follows the AI Governance
+  "Corie" home (https://rod-aig-uat.vercel.app/rod/aig/ai-gov/corie/, right-hand content only):
+  - greeting
+  - composer with request-type and source scope menus
+  - shortcuts
+  - tabs: High priority tasks / You left open / Privacy Agent handled
+  Content is in `src/app/data/chat-home.ts`. The main action is finishing the Privacy Agent setup:
+  the first shortcut and the first task card both link to `/setup/agent`. Sending a prompt opens
+  `/chats/new`, which is a placeholder for now.
+
 Not built yet: `/setup/flow`, `/setup/workflows`, `/intake`, `/requests/4207` (+ `/subtask`,
 `/redaction`), `/report` (page images are in `public/report-pages/`), `/dashboard`.
 

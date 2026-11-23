@@ -1,0 +1,196 @@
+<div class="page">
+  <h1 class="greeting">{{ greeting }}</h1>
+
+  <oc-assistant-thread class="ask" [label]="'Ask the ' + agentName">
+    <div class="composer-card">
+      <oc-assistant-composer [label]="'Message the ' + agentName" (send)="onSend()">
+        <textarea
+          oc-textarea
+          ocAssistantInput
+          rows="2"
+          [attr.aria-label]="'Ask the ' + agentName"
+          [placeholder]="placeholder()"
+        ></textarea>
+        <div oc-assistant-actions>
+          <button oc-icon-button variant="tertiary" size="sm" label="Add files">
+            <oc-icon name="plus" />
+          </button>
+          <span slot="end">
+            <button oc-icon-button ocAssistantSubmit variant="primary" size="sm" label="Send">
+              <oc-icon name="arrow-up" />
+            </button>
+          </span>
+        </div>
+      </oc-assistant-composer>
+
+      <div class="scope-bar">
+        <button oc-button variant="tertiary" size="sm" [ocMenuTrigger]="requestMenu">
+          <oc-icon slot="leading" name="ticket" />
+          {{ requestScopeLabel() }}
+          <oc-icon slot="trailing" name="chevron-down" />
+        </button>
+        <ng-template #requestMenu>
+          <oc-menu>
+            <div ocMenuRadioGroup [(value)]="requestScope">
+              @for (o of requestScopes; track o.value) {
+                <button oc-menu-item-radio [value]="o.value">{{ o.label }}</button>
+              }
+            </div>
+          </oc-menu>
+        </ng-template>
+
+        <button oc-button variant="tertiary" size="sm" [ocMenuTrigger]="sourceMenu">
+          <oc-icon slot="leading" name="database" />
+          {{ sourceScopeLabel() }}
+          <oc-icon slot="trailing" name="chevron-down" />
+        </button>
+        <ng-template #sourceMenu>
+          <oc-menu>
+            <div ocMenuRadioGroup [(value)]="sourceScope">
+              @for (o of sourceScopes; track o.value) {
+                <button oc-menu-item-radio [value]="o.value">{{ o.label }}</button>
+              }
+            </div>
+          </oc-menu>
+        </ng-template>
+
+        <button class="library" oc-button variant="tertiary" size="sm">
+          <oc-icon slot="leading" name="book" />
+          Prompt library
+        </button>
+      </div>
+    </div>
+
+    <div class="shortcuts" role="group" aria-label="Shortcuts">
+      @for (s of shortcuts; track s.label; let first = $first) {
+        <button
+          oc-assistant-suggestion
+          [class.main]="first"
+          [suggestion]="s.label"
+          [setPromptOnClick]="!s.link"
+          (click)="openShortcut(s)"
+        >
+          @if (first) {
+            <oc-icon name="ai-sparkles" size="sm" />
+          }
+          {{ s.label }}
+        </button>
+      }
+    </div>
+  </oc-assistant-thread>
+
+  <oc-tabs class="work" [(value)]="tab">
+    <oc-tab-list aria-label="Your work">
+      <button oc-tab-button value="priority">
+        High priority tasks <oc-badge size="sm">{{ taskTotal }}</oc-badge>
+      </button>
+      <button oc-tab-button value="open">
+        You left open <oc-badge size="sm">{{ openItems.length }}</oc-badge>
+      </button>
+      <button oc-tab-button value="handled">
+        {{ agentName }} handled <oc-badge size="sm">{{ handled.length }}</oc-badge>
+      </button>
+    </oc-tab-list>
+
+    <oc-tab-panel value="priority">
+      <p class="intro">A few decisions that keep requests moving.</p>
+      <ul class="cards">
+        @for (t of tasks(); track t.title) {
+          <li class="card" [class.primary]="t.primary">
+            <span class="card-icon"><oc-icon [name]="t.icon" size="sm" /></span>
+            <div class="card-body">
+              <h3>
+                {{ t.title }}
+                <oc-badge size="sm" [color]="t.priority === 'high' ? 'destructive' : 'warning'">
+                  <oc-icon name="triangle-exclamation" size="xs" />
+                  {{ t.priority === 'high' ? 'High' : 'Medium' }}
+                </oc-badge>
+              </h3>
+              <p>{{ t.body }}</p>
+              <div class="card-meta">
+                <span>{{ t.kind }}</span>
+                <span class="wait"><oc-icon name="clock-nine" size="xs" /> {{ t.waiting }}</span>
+                @if (t.primary) {
+                  <a oc-button variant="accent" size="sm" [routerLink]="t.link">
+                    <oc-icon slot="leading" name="ai-sparkles" />
+                    {{ t.action }}
+                  </a>
+                } @else {
+                  <a class="card-action" [routerLink]="t.link">
+                    {{ t.action }} <oc-icon name="arrow-right" size="xs" />
+                  </a>
+                }
+              </div>
+            </div>
+          </li>
+        }
+      </ul>
+      <div class="more">
+        <span>Showing {{ tasks().length }} of {{ taskTotal }}</span>
+        @if (taskTotal > tasks().length) {
+          <button oc-button variant="tertiary" size="sm" (click)="showAllTasks.set(true)">
+            View all {{ taskTotal }}
+          </button>
+        }
+      </div>
+    </oc-tab-panel>
+
+    <oc-tab-panel value="open">
+      <p class="intro">Your context is saved. Pick up right where you stopped.</p>
+      <ul class="cards">
+        @for (o of openItems; track o.title) {
+          <li class="card">
+            <span class="card-icon"><oc-icon [name]="o.icon" size="sm" /></span>
+            <div class="card-body">
+              <h3>
+                {{ o.title }}
+                <oc-badge size="sm" [color]="openState[o.state].color">
+                  {{ openState[o.state].label }}
+                </oc-badge>
+              </h3>
+              <p>{{ o.body }}</p>
+              @if (o.progress !== undefined) {
+                <div class="progress">
+                  <oc-progress size="sm" [value]="o.progress" [label]="o.title + ' progress'" />
+                  <span>{{ o.progress }}% ready</span>
+                </div>
+              }
+              <div class="card-meta">
+                <span>{{ o.kind }}</span>
+                <span class="wait"><oc-icon name="circle-check" size="xs" /> {{ o.ready }}</span>
+                <a class="card-action" [routerLink]="o.link">
+                  Continue <oc-icon name="arrow-right" size="xs" />
+                </a>
+              </div>
+            </div>
+          </li>
+        }
+      </ul>
+    </oc-tab-panel>
+
+    <oc-tab-panel value="handled">
+      <p class="intro">Work moved forward while you were away.</p>
+      <ol class="timeline">
+        @for (e of handled; track e.title) {
+          <li [class.review]="e.state === 'needs-review'">
+            <span class="time">{{ e.time }}</span>
+            <span class="dot" aria-hidden="true"></span>
+            <div>
+              <span class="visually-hidden">
+                {{ e.state === 'completed' ? 'Completed:' : 'Needs review:' }}
+              </span>
+              <h3>{{ e.title }}</h3>
+              <p>{{ e.detail }}</p>
+              @if (e.link) {
+                <a oc-button variant="secondary" size="sm" [routerLink]="e.link">
+                  Decide now
+                  <oc-icon slot="trailing" name="arrow-right" />
+                </a>
+              }
+            </div>
+          </li>
+        }
+      </ol>
+    </oc-tab-panel>
+  </oc-tabs>
+</div>
