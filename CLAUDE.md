@@ -16,8 +16,19 @@ with OneCore components; its code is a reference, not something to copy in.
 - Install with npm 11 (`npx npm@11 install`). npm 10.8 crashes with an `edgesOut` error on this
   dependency tree.
 - `@onetrust/onecore` comes from OneTrust Nexus (configured in `~/.npmrc`) and is not on public
-  npm, so hosts without Nexus access (for example Vercel) cannot install it. Deploy by building
-  locally and uploading with `vercel deploy --prebuilt` (not set up yet).
+  npm, so hosts without Nexus access (for example Vercel) cannot install it.
+
+## Deploy
+
+`npm run deploy:preview` or `npm run deploy` (production). Each runs `vercel build` locally, where
+Nexus is reachable, then uploads with `vercel deploy --prebuilt`.
+- Vercel project: onetrustpmux-v0/ai-dsar-onecore, set to Node 24.x in the project settings.
+- The GitHub repo is deliberately not connected, so pushing to GitHub does not deploy. A
+  Vercel-side build would fail without Nexus.
+- `vercel.json` rewrites every path to `index.html` so deep links work.
+- Preview deployments sit behind Vercel Authentication, so viewers sign in to Vercel. `vercel curl <path>
+  --deployment <url>` checks one from the command line.
+- `.vercel/` and `.env*` (the Vercel OIDC token) are git-ignored.
 
 ## Screens
 
