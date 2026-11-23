@@ -30,7 +30,7 @@ Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
   tenant top bar. The sidebar sets `data-mode="dark"`, so it uses dark-mode `--oc-*` tokens. Its
   links are in `shell/nav.ts`. Chat opens the Chat workspace menu (Figma node 467:17316: back,
   New chat, All chats, and the chat list from `CHAT_THREADS`): the two menus sit on a track that
-  slides left, while the header and user block stay put. Clicking Chat also opens `/chat`. Any
+  slides left, while the header and user block stay put. Clicking Chat (or New chat) opens `/chat`. Any
   `/chat` or `/chats` URL opens the Chat menu. `/chats` (All chats) is a separate page that isn't
   built yet. Figma assets with no OneCore icon (logo, chat glyph, activity dots, user chevron) are
   in `public/nav/`. Routes without a page render `pages/placeholder.ts`.
