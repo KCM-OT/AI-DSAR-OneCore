@@ -1,7 +1,6 @@
 // OneCore foundation: --oc-* tokens (light, dark and Edison themes), Antique Legacy
-// fonts and breakpoint mixins. Resolved through stylePreprocessorOptions.includePaths
-// in angular.json, because the package's exports map does not expose foundation/.
-@use 'foundation/styles' as oc;
+// fonts and Sass mixins. oc.base sets the font, text colour and background.
+@use '@onetrust/onecore/foundation/styles' as oc;
 
 html {
   @include oc.base;

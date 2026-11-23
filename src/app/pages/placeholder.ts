@@ -25,7 +25,7 @@ import { PageHeader } from '../shell/page-header';
     }
     .title {
       font-size: var(--oc-font-size-md);
-      font-weight: 500;
+      font-weight: var(--oc-font-weight-emphasis);
       color: var(--oc-foreground);
     }
     code {

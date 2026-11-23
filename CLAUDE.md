@@ -2,7 +2,8 @@
 
 Angular 21 prototype (standalone components, zoneless, SCSS, Vitest) for AI-assisted Data Subject
 Access Request (DSAR) handling, built on OneTrust's OneCore design system (`@onetrust/onecore`,
-pinned to 0.7.0, with `@angular/cdk` 21.1.6 and `ng-primitives` 0.131.0).
+pinned to 1.0.1, with `@angular/cdk` 21.1.6; OneCore brings its own `ng-primitives`, so don't add
+it to `package.json`).
 
 The starting point is an earlier prototype made in v0 (React/Next.js). Its screens are rebuilt here
 with OneCore components; its code is a reference, not something to copy in.
@@ -36,19 +37,23 @@ Not built yet: `/setup/flow`, `/setup/workflows`, `/intake`, `/requests/4207` (+
 ## OneCore
 
 - Docs ship in the package: `npx onecore list`, `npx onecore docs <component>`,
-  `npx onecore rules`. The `onecore` MCP server in `.mcp.json` serves the same docs. The hosted
-  Storybook needs a GitLab sign-in, so read the bundled docs instead.
+  `npx onecore rules`. The `onecore` MCP server in `.mcp.json` serves the same docs. Guides are
+  on the hosted Storybook (for example the Angular setup guide at
+  https://onecore.1trust.app/iframe.html?id=guides-engineers-angular-setup--docs&viewMode=docs).
+- Upgrade with `npx onecore upgrade-guide`: bump the version, install with npm 11, then run
+  `npx ng update @onetrust/onecore --migrate-only --from=<old> --to=<new> --allow-dirty` (plain
+  `ng update` would install with npm 10.8). Work through `onecore-upgrade-report.md`, then delete it.
 - Import from per-component entry points (`@onetrust/onecore/button`), never the package root.
-- Foundation styles load in `src/styles.scss` with `@use 'foundation/styles'`, resolved through
-  `stylePreprocessorOptions.includePaths` in `angular.json` (the package exports hide foundation/).
+- Foundation styles load in `src/styles.scss` with `@use '@onetrust/onecore/foundation/styles' as oc`
+  and `@include oc.base` on `html`.
 - Icons are tree-shaken: register each one in `provideOcIcons` in `src/app/app.config.ts`, importing
   from `@onetrust/onecore/icon`. An unregistered icon renders nothing. In buttons, put the icon in
   `slot="leading"` or `slot="trailing"`.
-- Style with `--oc-*` tokens only. `--oc-muted` is dark; for light surfaces use `--oc-secondary`
-  or `--oc-secondary-light-hover`.
-- OneCore has no table, side nav or page header component. Build those from native HTML styled with
-  tokens (the RoPA OneCore app at `~/Documents/privacy/RoPA/ropa-onecore` has working examples:
-  `.data-table` in its `styles.scss`, and its `shell/` sidebar).
+- Style with `--oc-*` tokens only, including font weights (`--oc-font-weight-emphasis`, not `500`).
+  `--oc-muted` is dark; for light surfaces use `--oc-secondary` or `--oc-secondary-light-hover`.
+- Since 1.0 OneCore has `oc-data-grid` (tables), `oc-tabs`, `oc-drawer`, `oc-stepper`,
+  `oc-breadcrumbs`, `oc-alert` and `oc-toast`: use them for the remaining screens. It still has no
+  side nav or page header component; those are native HTML styled with tokens (`src/app/shell/`).
 - If the dev server logs `NG0203: inputFunction() can only be used within an injection context`
   right after a new OneCore entry point is first imported, Vite re-bundled its deps mid-session;
   reload the page (or stop the server and delete `.angular/cache`).

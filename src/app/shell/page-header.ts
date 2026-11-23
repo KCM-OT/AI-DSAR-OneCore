@@ -48,7 +48,7 @@ export interface PageStat {
     h1 {
       margin: 0;
       font-size: var(--oc-font-size-xl);
-      font-weight: 500;
+      font-weight: var(--oc-font-weight-emphasis);
     }
     .stats {
       display: flex;
@@ -69,7 +69,7 @@ export interface PageStat {
     dd {
       margin: 0;
       font-size: var(--oc-font-size-2xl);
-      font-weight: 500;
+      font-weight: var(--oc-font-weight-emphasis);
     }
     .actions:empty {
       display: none;
