@@ -12,7 +12,7 @@ export interface NavLink {
 
 /** Module pages of Privacy Rights: DSAR. */
 export const MODULE_LINKS: readonly NavLink[] = [
-  { label: 'Command center', path: '/dashboard', icon: 'gauge' },
+  { label: 'Command center', path: '/command-center', icon: 'buildings' },
   { label: 'Reports', path: '/reports', icon: 'area-chart' },
   { label: 'Requests', path: '/requests', icon: 'ticket' },
   { label: 'Subtasks', path: '/subtasks', icon: 'list-check' },

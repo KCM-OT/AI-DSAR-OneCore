@@ -95,7 +95,7 @@ export const PRIORITY_TASKS: readonly PriorityTask[] = [
     icon: 'clone',
     waiting: 'Waiting on you 1 day',
     action: 'Compare requests',
-    link: '/dashboard',
+    link: '/command-center',
   },
   {
     title: 'Low-confidence identity match on AR-4198',
@@ -198,7 +198,7 @@ export const HANDLED_EVENTS: readonly HandledEvent[] = [
     state: 'needs-review',
     title: 'Flagged DR-4215 as a possible duplicate',
     detail: 'Matches DR-4179 on name, email and request type',
-    link: '/dashboard',
+    link: '/command-center',
   },
   {
     time: '11:02 PM',

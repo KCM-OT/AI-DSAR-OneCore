@@ -49,7 +49,7 @@ Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
   `/chats/new`, which is a placeholder for now.
 
 Not built yet: `/setup/flow`, `/setup/workflows`, `/intake`, `/requests/4207` (+ `/subtask`,
-`/redaction`), `/report` (page images are in `public/report-pages/`), `/dashboard`.
+`/redaction`), `/report` (page images are in `public/report-pages/`), `/command-center` (the v0 `/dashboard`).
 
 ## OneCore
 
