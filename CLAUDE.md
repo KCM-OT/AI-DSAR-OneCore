@@ -29,10 +29,10 @@ Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
   groups "Privacy Rights: DSAR" and "Workspaces", a user block, and a collapse toggle; plus the
   tenant top bar. The sidebar sets `data-mode="dark"`, so it uses dark-mode `--oc-*` tokens. Its
   links are in `shell/nav.ts`. Chat opens the Chat workspace menu (Figma node 467:17316: back,
-  New chat, All chats, and the chat list from `CHAT_THREADS`): the two menus sit on a track that
+  New chat, All chats, and the recent chats): the two menus sit on a track that
   slides left, while the header and user block stay put. Clicking Chat (or New chat) opens `/chat`. Any
-  `/chat` or `/chats` URL opens the Chat menu. `/chats` (All chats) is a separate page that isn't
-  built yet. Figma assets with no OneCore icon (logo, chat glyph, activity dots, user chevron) are
+  `/chat` or `/chats` URL opens the Chat menu. The menu's recent threads come from
+  `CHAT_THREADS` in `src/app/data/chats.ts`. Figma assets with no OneCore icon (logo, chat glyph, activity dots, user chevron) are
   in `public/nav/`. Routes without a page render `pages/placeholder.ts`.
 - `/setup`: Setup landing (agent-led or manual setup, program overview, configurations).
 - `/setup/agent`: Privacy Agent conversation (`oc-assistant-thread`) with a steps rail. The agent's
@@ -48,6 +48,15 @@ Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
   the first shortcut and the first task card both link to `/setup/agent`. Sending a prompt opens
   `/chats/new`, which is a placeholder for now.
 
+- `/chats`: All chats, laid out like the AI Governance "Corie" chats list
+  (https://rod-aig-uat.vercel.app/rod/aig/ai-gov/corie/chats/, right-hand content only):
+  - breadcrumb and title, with a count of chats and new replies
+  - search, an All / New replies / Pinned filter, and a sort menu
+  - one row per DSAR chat, showing its opening question, artifact and last activity
+  - a row menu with Pin and Delete, which change only the local list
+
+  Chats live in `src/app/data/chats.ts`. Rows open `/chats/<id>` (a placeholder); the pinned
+  setup chat opens `/setup/agent`.
 - `/command-center`: the privacy leader's home, laid out from Kevin's research-based spec:
   - global filters (date range, organization, request type, jurisdiction)
   - KPI health snapshot

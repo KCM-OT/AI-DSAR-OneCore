@@ -28,6 +28,12 @@ export const routes: Routes = [
         title: 'Chat | Privacy Rights Automation',
         loadComponent: () => import('./pages/chat/chat-home').then((m) => m.ChatHome),
       },
+      {
+        path: 'chats',
+        pathMatch: 'full',
+        title: 'All chats | Privacy Rights Automation',
+        loadComponent: () => import('./pages/chat/all-chats').then((m) => m.AllChats),
+      },
       // Screens not rebuilt yet render a "not built yet" placeholder.
       {
         path: '**',

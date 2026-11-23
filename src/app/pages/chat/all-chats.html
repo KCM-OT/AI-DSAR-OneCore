@@ -1,0 +1,116 @@
+<header class="head">
+  <oc-breadcrumbs [items]="breadcrumbs" (itemSelect)="onCrumb($event)" />
+  <div class="title-row">
+    <div>
+      <h1>All chats</h1>
+      <p>{{ summary() }}</p>
+    </div>
+    <a oc-button variant="primary" routerLink="/chat">
+      <oc-icon slot="leading" name="pen-to-square" />
+      New chat
+    </a>
+  </div>
+</header>
+
+<div class="body">
+  <div class="toolbar">
+    <oc-input
+      class="search"
+      type="search"
+      size="sm"
+      placeholder="Search chats…"
+      aria-label="Search chats"
+      clearable
+      [ngModel]="query()"
+      (ngModelChange)="query.set($event ?? '')"
+    >
+      <oc-icon slot="leading" name="magnifying-glass" />
+    </oc-input>
+
+    <oc-toggle-button-group
+      aria-label="Show"
+      size="sm"
+      [value]="[filter()]"
+      (valueChange)="setFilter($event)"
+    >
+      <button oc-toggle-button-group-item value="all">All</button>
+      <button oc-toggle-button-group-item value="new">New replies</button>
+      <button oc-toggle-button-group-item value="pinned">Pinned</button>
+    </oc-toggle-button-group>
+
+    <button class="sort" oc-button variant="tertiary" size="sm" [ocMenuTrigger]="sortMenu">
+      <oc-icon slot="leading" name="arrow-up-wide-short" />
+      {{ sortLabel() }}
+    </button>
+    <ng-template #sortMenu>
+      <oc-menu>
+        <div ocMenuRadioGroup [value]="sort()" (valueChange)="sort.set($any($event))">
+          @for (s of sorts; track s.value) {
+            <button oc-menu-item-radio [value]="s.value">{{ s.label }}</button>
+          }
+        </div>
+      </oc-menu>
+    </ng-template>
+  </div>
+
+  @if (visible().length) {
+    <ul class="list" aria-label="Chats">
+      @for (c of visible(); track c.id) {
+        <li class="row">
+          <a class="row-link" [routerLink]="linkFor(c)">
+            <span class="row-title">
+              @if (c.pinned) {
+                <oc-icon name="thumbtack" size="xs" />
+                <span class="visually-hidden">Pinned:</span>
+              }
+              {{ c.title }}
+              @if (c.newReply) {
+                <oc-badge size="sm" color="success">New reply</oc-badge>
+              }
+            </span>
+            <span class="row-prompt">{{ c.prompt }}</span>
+          </a>
+          <oc-tag class="artifact" size="sm">
+            <oc-icon [name]="c.artifact.icon" size="xs" />
+            {{ c.artifact.label }}
+          </oc-tag>
+          <span class="time">{{ c.lastActivity }}</span>
+          <button
+            class="more"
+            oc-icon-button
+            variant="tertiary"
+            size="sm"
+            [label]="'More actions for ' + c.title"
+            [ocMenuTrigger]="rowMenu"
+          >
+            <oc-icon name="ellipsis" />
+          </button>
+          <ng-template #rowMenu>
+            <oc-menu>
+              <button oc-menu-item (click)="togglePin(c)">
+                <oc-icon slot="leading" name="thumbtack" />
+                {{ c.pinned ? 'Unpin' : 'Pin' }}
+              </button>
+              <button oc-menu-item (click)="remove(c)">
+                <oc-icon slot="leading" name="trash-can" />
+                Delete
+              </button>
+            </oc-menu>
+          </ng-template>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="empty">
+      @if (query()) {
+        No chats match “{{ query() }}”.
+      } @else if (filter() === 'new') {
+        No chats have a new reply.
+      } @else if (filter() === 'pinned') {
+        No pinned chats. Pin a chat from its “More actions” menu.
+      } @else {
+        No chats yet. Start one with New chat.
+      }
+    </p>
+  }
+</div>

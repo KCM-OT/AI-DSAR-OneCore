@@ -6,7 +6,8 @@ import { OcButton } from '@onetrust/onecore/button';
 import { OcIcon } from '@onetrust/onecore/icon';
 import { OcIconButton } from '@onetrust/onecore/icon-button';
 import { filter } from 'rxjs';
-import { CHAT_THREADS, SIGNED_IN_USER, TENANT } from '../data/meridian';
+import { CHAT_THREADS } from '../data/chats';
+import { SIGNED_IN_USER, TENANT } from '../data/meridian';
 import { MODULE_LINKS, WORKSPACE_LINKS } from './nav';
 
 // OneTrust application chrome: the dark left navigation and the tenant top bar. OneCore has no
