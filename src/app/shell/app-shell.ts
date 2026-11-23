@@ -30,25 +30,28 @@ export class AppShell {
   /** The Chat workspace menu is showing in place of the main menu. */
   protected readonly chatOpen = signal(false);
 
+  private readonly router = inject(Router);
   private readonly chatButton = viewChild.required<ElementRef<HTMLButtonElement>>('chatButton');
   private readonly backButton = viewChild.required<ElementRef<HTMLButtonElement>>('backButton');
 
   constructor() {
     // Landing on a chat page (a reload or a deep link) shows the Chat menu.
-    const router = inject(Router);
+    const router = this.router;
     router.events
       .pipe(
         filter((e): e is NavigationEnd => e instanceof NavigationEnd),
         takeUntilDestroyed(),
       )
       .subscribe((e) => {
-        if (e.urlAfterRedirects.startsWith('/chats')) this.chatOpen.set(true);
+        if (/^\/chats?(\/|$|\?)/.test(e.urlAfterRedirects)) this.chatOpen.set(true);
       });
   }
 
   // Focus follows the slide, so keyboard users land in the menu that just appeared.
+  // Chat opens its menu and the Chat home page (/chat).
   protected openChat(): void {
     this.chatOpen.set(true);
+    this.router.navigateByUrl('/chat');
     setTimeout(() => this.backButton().nativeElement.focus({ preventScroll: true }));
   }
 

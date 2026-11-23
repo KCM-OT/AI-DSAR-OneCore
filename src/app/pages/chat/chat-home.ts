@@ -38,7 +38,7 @@ const OPEN_STATE: Record<OpenItemState, { label: string; color: OcBadgeColor }> 
   'in-progress': { label: 'In progress', color: 'purple' },
 };
 
-// Chat home (/chats): the Privacy Agent's start screen. Layout follows the AI Governance "Corie"
+// Chat home (/chat, opened by Chat in the main menu): the Privacy Agent's start screen. Layout follows the AI Governance "Corie"
 // home: greeting, composer with scope pickers, shortcuts, then tabs of work waiting on the user.
 // The main action, here and in the first task card, is finishing the Privacy Agent setup.
 @Component({

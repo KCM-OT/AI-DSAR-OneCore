@@ -24,8 +24,7 @@ export const routes: Routes = [
           import('./pages/command-center/command-center').then((m) => m.CommandCenter),
       },
       {
-        path: 'chats',
-        pathMatch: 'full',
+        path: 'chat',
         title: 'Chat | Privacy Rights Automation',
         loadComponent: () => import('./pages/chat/chat-home').then((m) => m.ChatHome),
       },

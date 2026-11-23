@@ -1,6 +1,6 @@
 import type { OcIconName } from '@onetrust/onecore/icon';
 
-// Content for the Chat home page (/chats): the Privacy Agent's start screen. The layout follows the
+// Content for the Chat home page (/chat): the Privacy Agent's start screen. The layout follows the
 // OneTrust AI Governance "Corie" home; every prompt, task and event here is a DSAR equivalent, using
 // the Meridian Brands requests from docs/v0-reference.md.
 

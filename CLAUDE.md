@@ -30,16 +30,16 @@ Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
   tenant top bar. The sidebar sets `data-mode="dark"`, so it uses dark-mode `--oc-*` tokens. Its
   links are in `shell/nav.ts`. Chat opens the Chat workspace menu (Figma node 467:17316: back,
   New chat, All chats, and the chat list from `CHAT_THREADS`): the two menus sit on a track that
-  slides left, while the header and user block stay put. Any `/chats` URL opens it. Figma assets
-  with no OneCore icon (logo, chat glyph, activity dots, user chevron) are in `public/nav/`.
-  Routes without a page render `pages/placeholder.ts`.
+  slides left, while the header and user block stay put. Clicking Chat also opens `/chat`. Any
+  `/chat` or `/chats` URL opens the Chat menu. `/chats` (All chats) is a separate page that isn't
+  built yet. Figma assets with no OneCore icon (logo, chat glyph, activity dots, user chevron) are
+  in `public/nav/`. Routes without a page render `pages/placeholder.ts`.
 - `/setup`: Setup landing (agent-led or manual setup, program overview, configurations).
 - `/setup/agent`: Privacy Agent conversation (`oc-assistant-thread`) with a steps rail. The agent's
   turns are scripted in `STAGES` and streamed word by word with `[ocStream]`; anything the user sends
   (or a suggestion / block button) moves to the next stage. Ends with a link to `/setup/flow`.
-
-- `/chats`: Chat home, the Privacy Agent's start screen. Its layout follows the AI Governance
-  "Corie" home (https://rod-aig-uat.vercel.app/rod/aig/ai-gov/corie/, right-hand content only):
+- `/chat`: Chat home, the Privacy Agent's start screen, opened by Chat in the main menu. Its layout
+  follows the AI Governance "Corie" home (https://rod-aig-uat.vercel.app/rod/aig/ai-gov/corie/, right-hand content only):
   - greeting
   - composer with request-type and source scope menus
   - shortcuts
