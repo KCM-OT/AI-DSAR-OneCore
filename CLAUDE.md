@@ -43,8 +43,11 @@ Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
   links are in `shell/nav.ts`. Chat opens the Chat workspace menu (Figma node 467:17316: back,
   New chat, All chats, and the recent chats): the two menus sit on a track that
   slides left, while the header and user block stay put. Clicking Chat (or New chat) opens `/chat`. Any
-  `/chat` or `/chats` URL opens the Chat menu. The menu's recent threads come from
-  `CHAT_THREADS` in `src/app/data/chats.ts`. Figma assets with no OneCore icon (logo, chat glyph, activity dots, user chevron) are
+  `/chat` or `/chats` URL opens the Chat menu, as does any link with router state
+  `{ chatMenu: true }` (Setup's "Start with privacy agent" uses it, so `/setup/agent` opens with the
+  Chat menu; the state survives reload). The menu lists pinned chats, then the three most recent,
+  from `CHAT_THREADS` in `src/app/data/chats.ts`; the pinned Privacy Agent setup chat links to
+  `/setup/agent`. Figma assets with no OneCore icon (logo, chat glyph, activity dots, user chevron) are
   in `public/nav/`. Routes without a page render `pages/placeholder.ts`.
 - `/setup`: Setup landing (agent-led or manual setup, program overview, configurations).
 - `/setup/agent`: Privacy Agent setup, laid out like the AI-assisted RoPA authoring page

@@ -26,7 +26,7 @@
         </ul>
       </oc-card-content>
       <oc-card-footer>
-        <a oc-button variant="accent" routerLink="/setup/agent">
+        <a oc-button variant="accent" routerLink="/setup/agent" [state]="{ chatMenu: true }">
           <oc-icon slot="leading" name="ai-sparkles" />
           Start with privacy agent
         </a>

@@ -36,7 +36,9 @@ export class AppShell {
   private readonly backButton = viewChild.required<ElementRef<HTMLButtonElement>>('backButton');
 
   constructor() {
-    // Landing on a chat page (a reload or a deep link) shows the Chat menu.
+    // Landing on a chat page (a reload or a deep link) shows the Chat menu, as does any link that
+    // passes `state: { chatMenu: true }` (Setup's "Start with privacy agent"). Router state lives in
+    // history.state, so the menu also stays open on reload and Back.
     const router = this.router;
     router.events
       .pipe(
@@ -44,7 +46,8 @@ export class AppShell {
         takeUntilDestroyed(),
       )
       .subscribe((e) => {
-        if (/^\/chats?(\/|$|\?)/.test(e.urlAfterRedirects)) this.chatOpen.set(true);
+        const chatUrl = /^\/chats?(\/|$|\?)/.test(e.urlAfterRedirects);
+        if (chatUrl || history.state?.chatMenu) this.chatOpen.set(true);
       });
   }
 

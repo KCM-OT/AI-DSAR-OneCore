@@ -110,11 +110,14 @@ export interface ChatThread {
   title: string;
   /** Has activity the user hasn't seen (filled dot in the Chat menu). */
   unread: boolean;
+  /** Where the chat opens; `/chats/<id>` by default. */
+  link: string;
 }
 
-/** The Chat menu lists the three most recent unpinned chats. */
-export const CHAT_THREADS: readonly ChatThread[] = [...CHATS]
-  .filter((c) => !c.pinned)
-  .sort((a, b) => a.minutesAgo - b.minutesAgo)
-  .slice(0, 3)
-  .map((c) => ({ id: c.id, title: c.title, unread: !!c.newReply }));
+const byRecency = (a: ChatRecord, b: ChatRecord) => a.minutesAgo - b.minutesAgo;
+
+/** The Chat menu lists pinned chats, then the three most recent unpinned ones. */
+export const CHAT_THREADS: readonly ChatThread[] = [
+  ...CHATS.filter((c) => c.pinned).sort(byRecency),
+  ...CHATS.filter((c) => !c.pinned).sort(byRecency).slice(0, 3),
+].map((c) => ({ id: c.id, title: c.title, unread: !!c.newReply, link: c.link ?? `/chats/${c.id}` }));
