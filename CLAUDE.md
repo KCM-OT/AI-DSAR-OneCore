@@ -71,6 +71,10 @@ Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
       Generate response → Deliver.
     - Nodes from the latest answer get an accent outline and an "Updated" tag, and the canvas
       pans to them.
+    - While an answer is applied (1.2s) its nodes wait as faint ghosts; when it's confirmed they
+      spring in one after another, left to right (`spring-in`, 110ms stagger), and the connectors
+      feeding them draw in first. Confirming scope springs the "In scope" pill. Reduced motion
+      turns all of this off.
     - Zoom and pan icons are in `public/flow/`.
     - Request-type colours follow the Figma legend (`FLOW_TYPE_COLORS`).
   - When done, the draft is "Ready for review". There's no footer button.

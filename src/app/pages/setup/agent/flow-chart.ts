@@ -2,12 +2,14 @@ import {
   afterNextRender,
   Component,
   computed,
+  DestroyRef,
   effect,
   ElementRef,
   inject,
   Injector,
   input,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { OcTag } from '@onetrust/onecore/tag';
@@ -47,6 +49,9 @@ const CHART_W = X.deliver + W + 8;
 /** Where the chart sits inside the scrollable canvas (matches .chart in the stylesheet). */
 const CHART_LEFT = 48;
 const CHART_TOP = 72;
+/** Confirm animation: each element springs in this long after the one before it. */
+const STAGGER_MS = 110;
+const SPRING_MS = 520;
 
 type Tone =
   | 'endpoint'
@@ -76,6 +81,12 @@ interface FlowLabel {
   type: RequestType;
   x: number;
   y: number; // centre line
+}
+
+/** A connector, and the nodes at its ends (so it can draw in with them). */
+interface FlowEdge {
+  d: string;
+  ids: readonly string[];
 }
 
 interface FlowGroup {
@@ -153,7 +164,45 @@ export class FlowChart {
 
   private readonly injector = inject(Injector);
 
+  // ---- Confirm animation
+  /**
+   * The section whose answer was just confirmed. Its nodes spring in one after another (left to
+   * right, then top to bottom) and the connectors feeding them draw in just before each one.
+   */
+  protected readonly revealing = signal<DraftSection | null>(null);
+  #prevUpdating: DraftSection | null = null;
+  #revealTimer: ReturnType<typeof setTimeout> | undefined;
+
+  /** Reveal order of the confirmed section's nodes, by id. */
+  protected readonly revealOrder = computed(() => {
+    const section = this.revealing();
+    const order = new Map<string, number>();
+    if (!section) return order;
+    this.layout()
+      .nodes.filter((n) => n.section === section)
+      .sort((a, b) => a.x - b.x || a.y - b.y)
+      .forEach((n, i) => order.set(n.id, i));
+    return order;
+  });
+
   constructor() {
+    // An answer is confirmed when its section stops updating: replay that section's nodes in order.
+    effect((onCleanup) => {
+      const updating = this.updating();
+      const done = this.#prevUpdating;
+      this.#prevUpdating = updating;
+      if (!done || updating) return;
+      untracked(() => {
+        const count = this.layout().nodes.filter((n) => n.section === done).length;
+        // Scope adds no nodes; its "In scope" pill springs in instead.
+        if (!count && done !== 'scope') return;
+        this.revealing.set(done);
+        clearTimeout(this.#revealTimer);
+        this.#revealTimer = setTimeout(() => this.revealing.set(null), SPRING_MS + Math.max(count, 1) * STAGGER_MS + 100);
+      });
+    });
+    inject(DestroyRef).onDestroy(() => clearTimeout(this.#revealTimer));
+
     // Start at a readable zoom, scrolled to the vertical middle of the chart.
     afterNextRender(() => {
       const el = this.viewport().nativeElement;
@@ -209,6 +258,19 @@ export class FlowChart {
     this.panning.set(false);
   }
 
+  /** A node's place in the reveal sequence, or -1 when it isn't revealing. */
+  protected revealIndex(n: FlowNode): number {
+    return this.revealOrder().get(n.id) ?? -1;
+  }
+
+  /** A connector draws in with the later of its two ends, or -1 when neither is revealing. */
+  protected edgeIndex(e: FlowEdge): number {
+    const order = this.revealOrder();
+    return Math.max(-1, ...e.ids.map((id) => order.get(id) ?? -1));
+  }
+
+  protected readonly stagger = STAGGER_MS;
+
   protected isChanged(n: FlowNode): boolean {
     return !!n.section && (n.section === this.changed() || n.section === this.updating());
   }
@@ -220,9 +282,10 @@ export class FlowChart {
     const nodes: FlowNode[] = [];
     const labels: FlowLabel[] = [];
     const groups: FlowGroup[] = [];
-    const edges: string[] = [];
+    const edges: FlowEdge[] = [];
+    const edge = (d: string, ...ids: string[]) => edges.push({ d, ids });
     /** Right-edge anchors that feed "Generate response". */
-    const ends: { x: number; y: number }[] = [];
+    const ends: { x: number; y: number; id: string }[] = [];
 
     const systemNodes = (type: RequestType, tone: Tone): FlowNode[] => {
       if (s.systems === null) {
@@ -270,8 +333,8 @@ export class FlowChart {
         node.y = y;
         nodes.push(node);
         labels.push({ type, x: X.label, y: y + H / 2 });
-        edges.push(elbow(X.label + 96, y + H / 2, node.x, y + H / 2, X.label + 112));
-        ends.push({ x: node.x + W, y: y + H / 2 });
+        edge(elbow(X.label + 96, y + H / 2, node.x, y + H / 2, X.label + 112), node.id);
+        ends.push({ x: node.x + W, y: y + H / 2, id: node.id });
         y += H + BLOCK_GAP;
         continue;
       }
@@ -287,7 +350,7 @@ export class FlowChart {
         n.x = X.system;
         n.y = y + PAD + i * (H + ROW);
         nodes.push(n);
-        edges.push(elbow(X.label + 96, mid, n.x, n.y + H / 2, X.system - 28));
+        edge(elbow(X.label + 96, mid, n.x, n.y + H / 2, X.system - 28), n.id);
       });
 
       const ruleSteps: FlowNode[] = [];
@@ -303,15 +366,15 @@ export class FlowChart {
 
       if (ruleSteps.length) {
         const first = ruleSteps[0];
-        sys.forEach((n) => edges.push(elbow(n.x + W, n.y + H / 2, first.x, mid, n.x + W + 20)));
+        sys.forEach((n) => edge(elbow(n.x + W, n.y + H / 2, first.x, mid, n.x + W + 20), n.id, first.id));
         for (let i = 1; i < ruleSteps.length; i++) {
-          edges.push(elbow(ruleSteps[i - 1].x + W, mid, ruleSteps[i].x, mid, ruleSteps[i].x - 10));
+          edge(elbow(ruleSteps[i - 1].x + W, mid, ruleSteps[i].x, mid, ruleSteps[i].x - 10), ruleSteps[i - 1].id, ruleSteps[i].id);
         }
         nodes.push(...ruleSteps);
         const last = ruleSteps[ruleSteps.length - 1];
-        ends.push({ x: last.x + W, y: mid });
+        ends.push({ x: last.x + W, y: mid, id: last.id });
       } else {
-        sys.forEach((n) => ends.push({ x: n.x + W, y: n.y + H / 2 }));
+        sys.forEach((n) => ends.push({ x: n.x + W, y: n.y + H / 2, id: n.id }));
       }
       y += groupH + BLOCK_GAP;
     }
@@ -338,11 +401,11 @@ export class FlowChart {
     const verify = rules.has('verify');
     if (verify) {
       nodes.push({ id: 'verify', title: 'Verify identity', detail: 'Before any data handling', x: X.verify, y: centre - H / 2, tone: 'core', section: 'rules' });
-      edges.push(elbow(X.intake + W, centre, X.verify, centre, X.verify - 10));
+      edge(elbow(X.intake + W, centre, X.verify, centre, X.verify - 10), 'intake', 'verify');
     }
     // Branch labels fan out from Verify identity, or from Intake when there's no verification.
     const fromX = verify ? X.verify + W : X.intake + W;
-    for (const l of labels) edges.push(elbow(fromX, centre, l.x, l.y, X.label - 24));
+    for (const l of labels) edge(elbow(fromX, centre, l.x, l.y, X.label - 24), verify ? 'verify' : 'intake');
 
     const voice = rules.has('voice');
     nodes.push(
@@ -357,8 +420,8 @@ export class FlowChart {
       },
       { id: 'deliver', title: 'Deliver', x: X.deliver, y: centre - H / 2, tone: 'endpoint' },
     );
-    for (const e of ends) edges.push(elbow(e.x, e.y, X.generate, centre, X.generate - 28));
-    edges.push(elbow(X.generate + W, centre, X.deliver, centre, X.deliver - 10));
+    for (const e of ends) edge(elbow(e.x, e.y, X.generate, centre, X.generate - 28), e.id, 'generate');
+    edge(elbow(X.generate + W, centre, X.deliver, centre, X.deliver - 10), 'generate', 'deliver');
 
     return { nodes, labels, groups, edges, width: CHART_W, height: chartH };
   });

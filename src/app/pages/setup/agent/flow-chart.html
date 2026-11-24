@@ -13,7 +13,7 @@
 
 <div class="canvas">
   @if (scope()) {
-    <p class="scope"><strong>In scope</strong> {{ scope() }}</p>
+    <p class="scope" [class.reveal]="revealing() === 'scope'"><strong>In scope</strong> {{ scope() }}</p>
   }
   <!-- Zoom and pan (Figma "navigation-tools") -->
   <div class="tools" role="toolbar" aria-label="Flow chart view">
@@ -60,8 +60,14 @@
         }
 
         <svg class="edges" [attr.width]="l.width" [attr.height]="l.height" aria-hidden="true">
-          @for (d of l.edges; track $index) {
-            <path [attr.d]="d" />
+          @for (e of l.edges; track $index) {
+            @let i = edgeIndex(e);
+            <path
+              [attr.d]="e.d"
+              pathLength="1"
+              [class.reveal]="i >= 0"
+              [style.animation-delay.ms]="i >= 0 ? i * stagger : null"
+            />
           }
         </svg>
 
@@ -77,6 +83,8 @@
             [attr.data-tone]="n.tone"
             [class.changed]="isChanged(n)"
             [class.updating]="!!n.section && n.section === updating()"
+            [class.reveal]="revealIndex(n) >= 0"
+            [style.animation-delay.ms]="revealIndex(n) >= 0 ? revealIndex(n) * stagger + 80 : null"
             [style.left.px]="n.x"
             [style.top.px]="n.y"
             [style.width.px]="nodeW"
