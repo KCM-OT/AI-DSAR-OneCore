@@ -18,6 +18,11 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/setup/agent/setup-agent').then((m) => m.SetupAgent),
       },
       {
+        path: 'setup/workflows',
+        title: 'Workflows | Privacy Rights Automation',
+        loadComponent: () => import('./pages/setup/workflows/workflows').then((m) => m.Workflows),
+      },
+      {
         path: 'command-center',
         title: 'Command center | Privacy Rights Automation',
         loadComponent: () =>

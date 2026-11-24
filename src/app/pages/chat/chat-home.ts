@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
   OcAssistantActions,
@@ -92,13 +92,35 @@ export class ChatHome {
     inject(DestroyRef).onDestroy(() => clearInterval(timer));
   }
 
+  /** The shortcut whose prompt is in the composer, if sending it should open its own page. */
+  private readonly armed = signal<Shortcut | null>(null);
+
+  private readonly promptInput = viewChild.required('promptInput', { read: ElementRef<HTMLTextAreaElement> });
+
   protected openShortcut(s: Shortcut): void {
     if (s.link) this.router.navigateByUrl(s.link);
+    this.armed.set(s.launch ? s : null);
+    // A shortcut with its own prompt fills the composer with it. (oc-assistant-suggestion shows its
+    // suggestion as the chip label, so the chip keeps the short label and the prompt is set here.)
+    if (s.prompt) {
+      const input = this.promptInput().nativeElement;
+      input.value = s.prompt;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.focus();
+      input.setSelectionRange(s.prompt.length, s.prompt.length);
+    }
   }
 
-  // Conversations aren't built yet: a sent prompt opens a new chat.
-  protected onSend(): void {
-    this.router.navigateByUrl('/chats/new');
+  // A prompt from a launching shortcut (Set up the Privacy Agent) opens that page with the prompt
+  // as the first message, even if the user edited it. Other conversations aren't built yet: they
+  // open a new chat.
+  protected onSend(text: string): void {
+    const launch = this.armed()?.launch;
+    if (launch && text.trim()) {
+      this.router.navigateByUrl(launch, { state: { chatMenu: true, prompt: text.trim() } });
+    } else {
+      this.router.navigateByUrl('/chats/new');
+    }
   }
 }
 

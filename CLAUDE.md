@@ -75,6 +75,17 @@ Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
     - Request-type colours follow the Figma legend (`FLOW_TYPE_COLORS`).
   - When done, the draft is "Ready for review". There's no footer button.
   - Workflow data is in `src/app/data/workflow-draft.ts`, with steps that match the v0 flow chart.
+- `/setup/workflows`: Setup › Workflows, laid out like the OneTrust DSAR Workflows list
+  (https://qa.1trust.app/dsar/workflows, sign-in needed):
+  - header with Create workflow and a "…" menu (Import)
+  - two dismissible `oc-alert` notices: a Privacy Agent one (before setup it links to `/setup/agent`;
+    once the agent has drafted workflows it says so and filters to them) and new workflow templates
+  - an `oc-data-grid` with a view menu (My workflows / Privacy Agent drafts / Drafts / Activated),
+    search, column menu, header filters on Status and the people columns, and 20 rows a page
+  The regulation templates are in `src/app/data/workflows.ts`. When the agent setup finishes it
+  publishes one draft workflow per request type through `AgentWorkflows`
+  (`src/app/data/agent-workflows.ts`, kept in localStorage); they're listed first, tagged Privacy
+  Agent, and open `/setup/agent`. The setup chat then shows a "View workflows" card.
 - `/chat`: Chat home, the Privacy Agent's start screen, opened by Chat in the main menu. Its layout
   follows the AI Governance "Corie" home (https://rod-aig-uat.vercel.app/rod/aig/ai-gov/corie/, right-hand content only):
   - greeting
@@ -82,9 +93,14 @@ Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
     on 2026-11-24; its options are still in `chat-home.ts` data)
   - shortcuts
   - tabs: High priority tasks / You left open / Privacy Agent handled
-  Content is in `src/app/data/chat-home.ts`. The main action is finishing the Privacy Agent setup:
-  the first shortcut and the first task card both link to `/setup/agent`. Sending a prompt opens
-  `/chats/new`, which is a placeholder for now.
+  Content is in `src/app/data/chat-home.ts`. The main action is finishing the Privacy Agent setup.
+  The first shortcut, "Set up the Privacy Agent", fills the composer with `SETUP_PROMPT` (a
+  simulated request naming the regulations, documents, rules, intake agents and systems the demo
+  builds the workflow from); sending it opens `/setup/agent` with router state
+  `{ chatMenu: true, prompt }`, where the prompt is the first message and the agent's first reply
+  answers it. `oc-assistant-suggestion` always shows its `suggestion` as the chip label, so that
+  chip keeps the short label and `openShortcut()` writes the prompt into the textarea. The first
+  task card links straight to `/setup/agent`. Any other prompt opens `/chats/new`, a placeholder.
 
 - `/chats`: All chats, laid out like the AI Governance "Corie" chats list
   (https://rod-aig-uat.vercel.app/rod/aig/ai-gov/corie/chats/, right-hand content only):
@@ -108,7 +124,7 @@ Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
   Request-type chart colours are fixed (Access blue, Deletion pink, Opt-out yellow, Correction
   purple, from `--oc-supportive-*`). That order passed the dataviz colour-blind validator; keep it.
 
-Not built yet: `/setup/flow`, `/setup/workflows`, `/intake`, `/requests/4207` (+ `/subtask`,
+Not built yet: `/setup/flow`, `/intake`, `/requests/4207` (+ `/subtask`,
 `/redaction`), `/report` (page images are in `public/report-pages/`). The v0 `/dashboard` is now `/command-center`.
 
 ## OneCore

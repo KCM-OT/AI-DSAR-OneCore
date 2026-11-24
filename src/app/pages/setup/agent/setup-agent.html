@@ -106,6 +106,20 @@
       </section>
     }
 
+    <!-- Setup done: the agent's draft workflows are in Setup › Workflows. -->
+    @if (ready()) {
+      <section class="question" aria-labelledby="saved-title">
+        <p id="saved-title" class="question-title">
+          <oc-icon name="circle-check" size="sm" />
+          {{ savedCount() }} draft workflows saved to Setup › Workflows
+        </p>
+        <div class="question-actions">
+          <span class="hint">One per request type, ready to review and activate</span>
+          <a oc-button size="sm" routerLink="/setup/workflows">View workflows</a>
+        </div>
+      </section>
+    }
+
     <oc-assistant-composer label="Message the Privacy Agent" (send)="onSend($event)">
       <textarea
         oc-textarea

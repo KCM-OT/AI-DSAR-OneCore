@@ -1,0 +1,157 @@
+// Fills the content area; the list takes the height left under the header and notices, so the
+// grid's header stays put while its rows scroll (DG-11).
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.lede {
+  margin: 0;
+  color: var(--oc-muted-foreground);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--oc-spacing-2);
+}
+
+// ---- Notices ---------------------------------------------------------------------------------
+
+.notices {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: var(--oc-spacing-4);
+  padding: var(--oc-spacing-4) var(--oc-spacing-5);
+  border-bottom: var(--oc-container-border-width) solid var(--oc-border);
+}
+
+.notice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oc-spacing-3);
+}
+
+.notice-actions {
+  display: flex;
+  gap: var(--oc-spacing-2);
+}
+
+// The templates notice carries its link inside the banner, at the end (as in the reference).
+.templates {
+  position: relative;
+}
+
+.templates-link {
+  position: absolute;
+  top: 50%;
+  right: calc(var(--oc-container-padding-md) + 32px + var(--oc-spacing-3)); // left of the dismiss button
+  translate: 0 -50%;
+  color: var(--oc-accent);
+  font-size: var(--oc-font-size-sm);
+  font-weight: var(--oc-font-weight-emphasis);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// ---- List ------------------------------------------------------------------------------------
+
+.list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 420px;
+  padding: var(--oc-spacing-4) var(--oc-spacing-5) var(--oc-spacing-5);
+}
+
+.grid {
+  flex: 1;
+  min-height: 0;
+}
+
+.toolbar-end {
+  display: flex;
+  align-items: center;
+  gap: var(--oc-spacing-2);
+}
+
+.name {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oc-spacing-1);
+  min-width: 0;
+  padding-block: var(--oc-spacing-1);
+  white-space: normal; // long regulation names wrap instead of clipping
+
+  a {
+    color: var(--oc-accent);
+    font-weight: var(--oc-font-weight-emphasis);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.agent-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--oc-spacing-2);
+  min-width: 0;
+}
+
+.swatch {
+  flex-shrink: 0;
+  width: 3px;
+  height: 14px;
+  border-radius: var(--oc-control-radius-full);
+}
+
+.summary {
+  overflow: hidden;
+  color: var(--oc-muted-foreground);
+  font-size: var(--oc-font-size-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: var(--oc-spacing-2);
+  min-width: 0;
+
+  > span {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: var(--oc-line-height-tight);
+  }
+
+  strong {
+    font-weight: var(--oc-font-weight-emphasis);
+  }
+
+  span span {
+    color: var(--oc-muted-foreground);
+    font-size: var(--oc-font-size-xs);
+  }
+}
+
+.agent-avatar {
+  color: var(--oc-supportive-purple);
+}
+
+.empty {
+  margin: 0;
+  padding: var(--oc-spacing-6);
+  color: var(--oc-muted-foreground);
+  text-align: center;
+}

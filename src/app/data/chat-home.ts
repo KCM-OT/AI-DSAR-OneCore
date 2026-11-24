@@ -40,10 +40,29 @@ export interface Shortcut {
   label: string;
   /** Opens a page instead of filling the composer. */
   link?: string;
+  /** Fills the composer with this prompt instead of the label. */
+  prompt?: string;
+  /** Sending the prompt opens this page, with the prompt as the conversation's first message. */
+  launch?: string;
 }
 
+/**
+ * The simulated setup request the "Set up the Privacy Agent" shortcut puts in the composer. It
+ * carries what the demo builds the workflow from: the regulations, the documents, the playbook
+ * rules, the intake channels and the systems (src/app/data/meridian.ts, workflow-draft.ts).
+ */
+export const SETUP_PROMPT =
+  'Set up the Privacy Agent for Meridian Brands. We sell through three consumer brands (Northwind Outfitters, ' +
+  'Cascade Home and Alpine Rewards) to customers in the US, Germany and Austria, and we have employees in the ' +
+  'US and Germany, so CCPA/CPRA, VCDPA, CPA and GDPR apply. Build the DSAR workflow from our DSAR Standard ' +
+  'Operating Procedure, Customer Data Flows, Response Letter Examples and Brand + Tone Guide. Every request ' +
+  'should verify identity first; access requests redact third-party data in support transcripts and get ' +
+  'privacy sign-off; accounts with open disputes go to Legal before deletion; and responses follow our brand ' +
+  'voice. Take requests through an intake agent for each brand plus one for employees. The data lives in ' +
+  'Salesforce, Marketo, Zendesk and our internal warehouse.';
+
 export const SHORTCUTS: readonly Shortcut[] = [
-  { label: 'Set up the Privacy Agent', link: '/setup/agent' },
+  { label: 'Set up the Privacy Agent', prompt: SETUP_PROMPT, launch: '/setup/agent' },
   { label: 'Find requests at deadline risk' },
   { label: 'Verify a requester’s identity' },
   { label: 'Check for duplicate requests' },

@@ -1,0 +1,156 @@
+<app-page-header title="Workflows">
+  <p class="lede">Choose a workflow for organizing privacy-related tasks through various stages.</p>
+  <div slot="actions" class="actions">
+    <!-- AI entry point, in OneCore's AI (accent gradient) style as in the AI-assisted RoPA app. -->
+    <a oc-button variant="accent" routerLink="/chat">
+      <oc-icon slot="leading" name="ai-sparkles" />
+      Create with AI
+    </a>
+    <button oc-button variant="primary">Create workflow</button>
+    <button oc-icon-button variant="tertiary" label="More actions" [ocMenuTrigger]="moreMenu">
+      <oc-icon name="ellipsis" />
+    </button>
+    <ng-template #moreMenu>
+      <oc-menu>
+        <button oc-menu-item>
+          <oc-icon slot="leading" name="file-import" />
+          Import
+        </button>
+      </oc-menu>
+    </ng-template>
+  </div>
+</app-page-header>
+
+<!-- Notices (reference: "automate data retrieval" with the automation wizard, and new templates) -->
+@if (showAgentNotice() || showTemplatesNotice()) {
+  <div class="notices">
+    @if (showAgentNotice()) {
+      <div class="notice">
+        @if (agentDrafts().length) {
+          <oc-alert
+            intent="success"
+            [title]="'The Privacy Agent drafted ' + agentDrafts().length + ' workflows from your setup.'"
+            description="Each is a draft: review it, then activate it. They're marked Privacy Agent in the list."
+            (dismissed)="showAgentNotice.set(false)"
+          />
+          <div class="notice-actions">
+            <button oc-button variant="secondary" size="sm" (click)="view.set('agent')">
+              Show Privacy Agent drafts
+            </button>
+            <a oc-button variant="tertiary" size="sm" routerLink="/setup/agent" [state]="{ chatMenu: true }">
+              Open the setup chat
+            </a>
+          </div>
+        } @else {
+          <oc-alert
+            intent="info"
+            title="Let the Privacy Agent draft your workflows."
+            description="Answer a few questions and it builds one workflow per request type from your regulations, playbook and systems. They'll appear here as drafts."
+            (dismissed)="showAgentNotice.set(false)"
+          />
+          <div class="notice-actions">
+            <a oc-button variant="secondary" size="sm" routerLink="/setup/agent" [state]="{ chatMenu: true }">
+              <oc-icon slot="leading" name="ai-sparkles" />
+              Set up with Privacy Agent
+            </a>
+          </div>
+        }
+      </div>
+    }
+
+    @if (showTemplatesNotice()) {
+      <div class="notice templates">
+        <oc-alert intent="info" title="Additional workflow templates are now available." (dismissed)="showTemplatesNotice.set(false)" />
+        <a class="templates-link" routerLink="/setup/workflows/templates">View workflow templates</a>
+      </div>
+    }
+  </div>
+}
+
+<section class="list" aria-label="Workflows">
+  <oc-data-grid [table]="table" aria-label="Workflows" class="grid">
+    <oc-data-grid-toolbar>
+      <button oc-button variant="tertiary" size="sm" [ocMenuTrigger]="viewMenu">
+        <oc-icon slot="leading" name="filter" />
+        {{ viewLabel() }}
+        <oc-icon slot="trailing" name="chevron-down" />
+      </button>
+      <ng-template #viewMenu>
+        <oc-menu>
+          <div ocMenuRadioGroup [value]="view()" (valueChange)="view.set($any($event))">
+            @for (v of views; track v.id) {
+              <button oc-menu-item-radio [value]="v.id">{{ v.label }}</button>
+            }
+          </div>
+        </oc-menu>
+      </ng-template>
+
+      <div slot="end" class="toolbar-end">
+        <oc-data-grid-search />
+        <oc-data-grid-column-menu />
+      </div>
+    </oc-data-grid-toolbar>
+
+    <ng-template ocDataGridCellDef="name" [table]="table" let-row="row">
+      @let w = row.original;
+      <span class="name">
+        @if (w.agent) {
+          <a routerLink="/setup/agent" [state]="{ chatMenu: true }">{{ w.name }}</a>
+          <span class="agent-meta">
+            <span class="swatch" [style.background]="typeColor(w)"></span>
+            <oc-tag size="sm" color="purple">
+              <oc-icon slot="leading" name="ai-sparkles" size="sm" />
+              Privacy Agent
+            </oc-tag>
+            <span class="summary">{{ w.summary }}</span>
+          </span>
+        } @else {
+          <a [routerLink]="['/setup/workflows', w.id]">{{ w.name }}</a>
+        }
+      </span>
+    </ng-template>
+
+    <ng-template ocDataGridCellDef="status" [table]="table" let-row="row">
+      <oc-tag size="sm" [color]="statusColor(row.original)">{{ row.original.status }}</oc-tag>
+    </ng-template>
+
+    <ng-template ocDataGridCellDef="updatedBy" [table]="table" let-row="row">
+      <ng-container *ngTemplateOutlet="person; context: { $implicit: row.original.updatedBy, agent: row.original.agent }" />
+    </ng-template>
+
+    <ng-template ocDataGridCellDef="updatedAt" [table]="table" let-row="row">
+      {{ date(row.original.updatedAt) }}
+    </ng-template>
+
+    <ng-template ocDataGridCellDef="createdBy" [table]="table" let-row="row">
+      <ng-container *ngTemplateOutlet="person; context: { $implicit: row.original.createdBy, agent: row.original.agent }" />
+    </ng-template>
+
+    <ng-template ocDataGridNoResultsDef>
+      <p class="empty">No workflows match. Try another view or search.</p>
+    </ng-template>
+
+    <oc-data-grid-footer [pageSizes]="[20, 50, 100]" />
+  </oc-data-grid>
+</section>
+
+<!-- A person cell: avatar, name and email; OneTrust templates show a plain avatar. -->
+<ng-template #person let-p let-agent="agent">
+  @if (agent) {
+    <span class="person">
+      <oc-avatar size="sm" label="Privacy Agent" [showTooltip]="false" class="agent-avatar">
+        <oc-icon name="ai-sparkles" />
+      </oc-avatar>
+      <span><strong>{{ p.name }}</strong><span>{{ p.email }}</span></span>
+    </span>
+  } @else if (p) {
+    <span class="person">
+      <oc-avatar size="sm" [initials]="p.initials" [label]="p.name" [showTooltip]="false" />
+      <span><strong>{{ p.name }}</strong><span>{{ p.email }}</span></span>
+    </span>
+  } @else {
+    <oc-avatar size="sm" label="OneTrust template">
+      <oc-icon name="user" />
+    </oc-avatar>
+  }
+</ng-template>

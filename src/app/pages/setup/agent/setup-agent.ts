@@ -1,5 +1,5 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, computed, DestroyRef, effect, inject, signal, untracked } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import {
   OcAssistantActions,
   OcAssistantComposer,
@@ -18,6 +18,7 @@ import { OcStreamDirective, type ChoreoState } from '@onetrust/onecore/choreogra
 import { OcIcon } from '@onetrust/onecore/icon';
 import { OcIconButton } from '@onetrust/onecore/icon-button';
 import { OcTextarea } from '@onetrust/onecore/textarea';
+import { AgentWorkflows } from '../../../data/agent-workflows';
 import { INTAKE_AGENTS, SETUP_DOCUMENTS, SIGNED_IN_USER, SYSTEMS } from '../../../data/meridian';
 import { type DraftSection, REGULATIONS, WORKFLOW_RULES } from '../../../data/workflow-draft';
 import { PageHeader } from '../../../shell/page-header';
@@ -76,9 +77,12 @@ const STAGES: readonly Stage[] = [
   },
   {
     reply:
-      "That's everything I need. The draft now has one path per request type, with your playbook rules built in. Open it as a flow chart to review it, or tell me what to change.",
+      "That's everything I need. The draft now has one path per request type, with your playbook rules built in, and I've saved each path as a draft workflow in Setup › Workflows. Open it as a flow chart to review it, or tell me what to change.",
   },
 ];
+
+/** The first reply when the conversation starts from the Chat home's setup prompt. */
+const FROM_PROMPT_REPLY = `Thanks, ${SIGNED_IN_USER.firstName}. I'll build the workflow from that, one step at a time, and you can adjust each choice as we go. I also checked Meridian Brands' public footprint, and it matches what you said: four privacy regulations are in scope. Confirm which ones the workflow should cover.`;
 
 const THINK_MS = 900;
 const WORD_MS = 28;
@@ -151,6 +155,10 @@ export class SetupAgent {
   protected readonly changed = signal<DraftSection | null>(null);
   protected readonly ready = computed(() => this.stage() === STAGES.length - 1 && !this.busy());
 
+  // ---- Finished setup: the agent's drafts go to Setup › Workflows
+  readonly #agentWorkflows = inject(AgentWorkflows);
+  protected readonly savedCount = computed(() => this.#agentWorkflows.workflows().length);
+
   // ---- The open question and its choices (all suggested options start selected)
   protected readonly question = computed<Question | undefined>(() =>
     this.busy() ? undefined : STAGES[this.stage()]?.question,
@@ -196,7 +204,22 @@ export class SetupAgent {
 
   constructor() {
     inject(DestroyRef).onDestroy(() => clearTimeout(this.#timer));
-    this.#reply(0);
+    // Each time setup finishes, save one draft workflow per request type.
+    effect(() => {
+      if (this.ready()) untracked(() => this.#agentWorkflows.publish(this.draft()));
+    });
+    // Opened from the Chat home's "Set up the Privacy Agent" prompt: that prompt opens the
+    // conversation, and the agent's first reply answers it.
+    const router = inject(Router);
+    const state = (router.currentNavigation()?.extras.state ?? history.state) as { prompt?: unknown } | null;
+    const prompt = typeof state?.prompt === 'string' ? state.prompt : '';
+    if (prompt) {
+      this.#say(prompt);
+      this.stage.set(0);
+      this.#replyText(FROM_PROMPT_REPLY);
+    } else {
+      this.#reply(0);
+    }
   }
 
   protected streamState(id: number): ChoreoState | undefined {
