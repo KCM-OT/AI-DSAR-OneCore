@@ -47,9 +47,20 @@ Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
   `CHAT_THREADS` in `src/app/data/chats.ts`. Figma assets with no OneCore icon (logo, chat glyph, activity dots, user chevron) are
   in `public/nav/`. Routes without a page render `pages/placeholder.ts`.
 - `/setup`: Setup landing (agent-led or manual setup, program overview, configurations).
-- `/setup/agent`: Privacy Agent conversation (`oc-assistant-thread`) with a steps rail. The agent's
-  turns are scripted in `STAGES` and streamed word by word with `[ocStream]`; anything the user sends
-  (or a suggestion / block button) moves to the next stage. Ends with a link to `/setup/flow`.
+- `/setup/agent`: Privacy Agent setup, laid out like the AI-assisted RoPA authoring page
+  (https://ai-ropa-corie-onecore.vercel.app/ai-assisted-ropa): page header, then a narrow chat
+  (30%) beside a wide workflow draft artifact (70%, `workflow-draft.ts`).
+  - The agent's turns are scripted in `STAGES` and streamed with `[ocStream]`.
+  - Each stage asks one question in a card docked above the composer: regulations in scope,
+    documents, playbook rules, intake agents, systems. Every option starts selected. Typing a
+    message accepts the current choices.
+  - Each answer fills one of the draft's five sections (scope and deadlines, sources, playbook
+    rules, intake channels, request paths). The section shows as updating for 1.2s and scrolls into
+    view.
+  - Request paths are one lane per request type, built from the chosen rules and systems; a type
+    with no system shows "No system selected".
+  - When done, the draft is "Ready for review" and links to `/setup/flow`.
+  - Workflow data is in `src/app/data/workflow-draft.ts`, with steps that match the v0 flow chart.
 - `/chat`: Chat home, the Privacy Agent's start screen, opened by Chat in the main menu. Its layout
   follows the AI Governance "Corie" home (https://rod-aig-uat.vercel.app/rod/aig/ai-gov/corie/, right-hand content only):
   - greeting

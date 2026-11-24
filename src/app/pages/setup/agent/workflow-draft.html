@@ -1,0 +1,188 @@
+<div class="scroll">
+  <div class="head">
+    <div>
+      <h2 id="draft-title">Workflow draft</h2>
+      <p class="sub">DSAR intake workflow for {{ brands.length }} brands. Nothing is published until you review it.</p>
+    </div>
+    <oc-badge size="sm" [color]="status().color">{{ status().label }}</oc-badge>
+  </div>
+
+  <dl class="basics">
+    <div>
+      <dt>Workflow</dt>
+      <dd>DSAR intake workflow</dd>
+    </div>
+    <div>
+      <dt>Organization</dt>
+      <dd>Meridian Brands</dd>
+    </div>
+    <div>
+      <dt>Request types</dt>
+      <dd>Access · Deletion · Opt-out · Correction</dd>
+    </div>
+    <div>
+      <dt>Regulations</dt>
+      <dd [class.missing]="!regulations().length">
+        {{ regulations().length ? regulationLabels().join(', ') : 'Not set yet' }}
+      </dd>
+    </div>
+  </dl>
+
+  <div class="score">
+    <div class="score-row">
+      <span><strong>Completeness</strong> {{ done() }} of {{ sections.length }} sections</span>
+      <span>{{ pct() }}%</span>
+    </div>
+    <oc-progress size="sm" label="Workflow draft completeness" [value]="done()" [max]="sections.length" />
+  </div>
+
+  <ol class="sections">
+    @for (sec of sections; track sec.id; let i = $index) {
+      <li
+        class="section"
+        [id]="'draft-' + sec.id"
+        [class.updating]="updating() === sec.id"
+        [class.pending]="!filled(sec.id) && updating() !== sec.id"
+      >
+        <div class="section-head">
+          <span class="num" [class.done]="filled(sec.id)">
+            @if (filled(sec.id)) {
+              <oc-icon name="check" size="xs" />
+            } @else {
+              {{ i + 1 }}
+            }
+          </span>
+          <h3>{{ sec.title }}</h3>
+          @if (updating() === sec.id) {
+            <oc-badge size="sm" color="purple"><oc-icon name="ai-sparkles" size="xs" /> Updating</oc-badge>
+          }
+        </div>
+
+        @if (filled(sec.id)) {
+          <div class="section-body">
+            @switch (sec.id) {
+              @case ('scope') {
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Regulation</th>
+                      <th scope="col">Where</th>
+                      <th scope="col">Respond within</th>
+                      <th scope="col">Extension</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (r of regulations(); track r.id) {
+                      <tr>
+                        <td><strong>{{ r.label }}</strong></td>
+                        <td>{{ r.region }}</td>
+                        <td>{{ r.deadline }}</td>
+                        <td>{{ r.extension }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+                <p class="note">
+                  Brands: {{ brands.join(', ') }} · Customers in {{ countries.join(', ') }}
+                </p>
+              }
+              @case ('sources') {
+                <ul class="docs">
+                  @for (d of state().documents; track d.name) {
+                    <li>
+                      <oc-icon [name]="d.kind === 'pdf' ? 'file-pdf' : 'file-lines'" size="sm" />
+                      {{ d.name }}
+                    </li>
+                  }
+                </ul>
+              }
+              @case ('rules') {
+                @if (rules().length) {
+                  <ul class="rules">
+                    @for (r of rules(); track r.id) {
+                      <li>
+                        <span class="rule-text">{{ r.text }}</span>
+                        <span class="rule-where">{{ r.appliesTo }}</span>
+                        <oc-tag size="sm">{{ r.source }}</oc-tag>
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <p class="note">No playbook rules applied. Every path runs without checks.</p>
+                }
+              }
+              @case ('intake') {
+                @if (agents().length) {
+                  <ul class="agents">
+                    @for (a of agents(); track a.brand) {
+                      <li>
+                        <strong>{{ a.brand }}</strong>
+                        <span>{{ a.regulations.join(' · ') }}</span>
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <p class="note">No intake agents. Requests arrive through the standard web form.</p>
+                }
+              }
+              @case ('paths') {
+                <div class="paths">
+                  @for (p of paths(); track p.type) {
+                    <section class="lane" [attr.aria-label]="p.type + ' path'">
+                      <div class="lane-head">
+                        <span class="swatch" [style.background]="typeColors[p.type]"></span>
+                        <strong>{{ p.type }}</strong>
+                        <span>{{ purpose[p.type] }}</span>
+                      </div>
+                      <ol class="steps">
+                        @for (s of p.steps; track $index; let last = $last) {
+                          <li class="step" [attr.data-kind]="s.kind">
+                            <span class="step-label">{{ s.label }}</span>
+                            @if (s.detail) {
+                              <span class="step-detail">{{ s.detail }}</span>
+                            }
+                            @if (s.source) {
+                              <span class="step-source">{{ s.source }}</span>
+                            }
+                          </li>
+                          @if (!last) {
+                            <li class="arrow" aria-hidden="true"><oc-icon name="arrow-right" size="xs" /></li>
+                          }
+                        }
+                      </ol>
+                    </section>
+                  }
+                </div>
+              }
+            }
+          </div>
+        } @else {
+          <div class="section-body skeleton" [attr.aria-label]="updating() === sec.id ? 'Updating' : null">
+            @if (updating() !== sec.id) {
+              <p class="waiting">{{ sec.waitingFor }}</p>
+            }
+            <oc-skeleton class="sk-line" />
+            <oc-skeleton class="sk-line short" />
+          </div>
+        }
+      </li>
+    }
+  </ol>
+</div>
+
+<div class="foot">
+  <a
+    oc-button
+    variant="accent"
+    [attr.aria-disabled]="!ready() || null"
+    [class.disabled]="!ready()"
+    [routerLink]="ready() ? '/setup/flow' : null"
+  >
+    <oc-icon slot="leading" name="sitemap" />
+    Open the flow chart
+  </a>
+  <p>
+    Drafted by the Privacy Agent from your answers and documents. Review it as a flow chart, then
+    publish one workflow per request type.
+  </p>
+</div>

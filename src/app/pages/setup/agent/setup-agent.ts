@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   OcAssistantActions,
@@ -7,100 +7,101 @@ import {
   OcAssistantMessage,
   OcAssistantScrollToBottom,
   OcAssistantSubmit,
-  OcAssistantSuggestion,
   OcAssistantThinking,
   OcAssistantThread,
   OcAssistantViewport,
 } from '@onetrust/onecore/assistant';
 import { OcAvatar } from '@onetrust/onecore/avatar';
-import { OcBadge } from '@onetrust/onecore/badge';
 import { OcButton } from '@onetrust/onecore/button';
+import { OcCheckbox } from '@onetrust/onecore/checkbox';
 import { OcStreamDirective, type ChoreoState } from '@onetrust/onecore/choreography';
 import { OcIcon } from '@onetrust/onecore/icon';
 import { OcIconButton } from '@onetrust/onecore/icon-button';
-import { OcTag } from '@onetrust/onecore/tag';
 import { OcTextarea } from '@onetrust/onecore/textarea';
-import {
-  COMPANY_PROFILE,
-  INTAKE_AGENTS,
-  PLAYBOOK,
-  SETUP_DOCUMENTS,
-  SETUP_STEPS,
-  SIGNED_IN_USER,
-  SYSTEMS,
-} from '../../../data/meridian';
+import { INTAKE_AGENTS, SETUP_DOCUMENTS, SIGNED_IN_USER, SYSTEMS } from '../../../data/meridian';
+import { type DraftSection, REGULATIONS, WORKFLOW_RULES } from '../../../data/workflow-draft';
 import { PageHeader } from '../../../shell/page-header';
-
-// Rich content shown under a turn once its text has streamed.
-type Block = 'profile' | 'uploads' | 'playbook' | 'agents' | 'systems' | 'handoff';
+import { type DraftState, WorkflowDraft } from './workflow-draft';
 
 interface Turn {
   id: number;
   from: 'user' | 'assistant';
   text: string;
-  block?: Block;
+  /** User turns: show the attached documents under the message. */
+  attachments?: boolean;
   /** Assistant turns: the token source [ocStream] reveals. */
   source?: AsyncIterable<string>;
 }
 
+/** The question the agent asks at each stage, answered in the card above the composer. */
+type Question = 'scope' | 'documents' | 'rules' | 'agents' | 'systems';
+
 interface Stage {
   reply: string;
-  block?: Block;
-  /** What the user can send to move on (a suggestion chip), if anything. */
-  next?: string;
+  question?: Question;
 }
 
-// The agent's side of the setup conversation (v0 steps 2–8). Each stage is one
-// agent turn; the user moves the script on by sending anything.
+interface Option {
+  id: string;
+  label: string;
+  detail?: string;
+}
+
+// The agent's side of the setup conversation (v0 steps 2–8). Each stage asks one question; the
+// answer updates one section of the workflow draft beside the chat.
 const STAGES: readonly Stage[] = [
   {
-    reply: `Welcome, ${SIGNED_IN_USER.firstName}. Before we set anything up, I researched Meridian Brands. Here's what I found. Confirm or correct anything.`,
-    block: 'profile',
-    next: 'That all looks right.',
+    reply: `Welcome, ${SIGNED_IN_USER.firstName}. Before we set anything up, I researched Meridian Brands: three consumer brands, customers in the US, Germany and Austria, and employees in the US and Germany. That puts four privacy regulations in scope. Confirm which ones the workflow should cover.`,
+    question: 'scope',
   },
   {
     reply:
-      "Next: the documents that describe how Meridian actually works. A DSAR procedure, retention policies, data flow diagrams, past response letters, brand guidelines: anything you'd hand a new privacy hire, hand to me.",
+      "I've added the scope and response deadlines to the draft. Next: the documents that describe how Meridian actually works. A DSAR procedure, data flows, past response letters, your brand guide: anything you'd hand a new privacy hire.",
+    question: 'documents',
   },
   {
     reply:
-      "I've read them. Here's your operating playbook as I understand it. This is the context I'll follow on every request.",
-    block: 'playbook',
-    next: "Looks right. What's next?",
+      "I've read them. Your procedure sets a few rules every request should follow. Choose the ones to build into the workflow, and I'll show where each one lands.",
+    question: 'rules',
   },
   {
     reply:
-      'Based on your brands and jurisdictions, I suggest four branded intake agents: structured request experiences that can also answer requesters\' questions. One per consumer brand, one for employees.',
-    block: 'agents',
+      "Rules applied. For intake, I suggest branded intake agents: structured request experiences that can also answer requesters' questions. One per consumer brand, and one for employees.",
+    question: 'agents',
   },
   {
     reply:
-      "To fulfill requests I'll work in your systems. Your data map and your data flow diagram agree on four: Salesforce, Marketo, Zendesk, and your internal warehouse. The first three have OneTrust connectors. The warehouse doesn't, so I'll work with its owner.",
-    block: 'systems',
+      "To fulfil requests I'll work in your systems. Your data map and data flows agree on four. Salesforce, Marketo and Zendesk have OneTrust connectors. The internal warehouse doesn't, so I'll work with its owner, Daniel Okafor.",
+    question: 'systems',
   },
   {
     reply:
-      "That's everything I need. I've drafted your DSAR intake workflow as a flow chart: one path per request type, with the rules from your playbook built in. Review it, and ask me for any changes.",
-    block: 'handoff',
+      "That's everything I need. The draft now has one path per request type, with your playbook rules built in. Open it as a flow chart to review it, or tell me what to change.",
   },
 ];
 
 const THINK_MS = 900;
 const WORD_MS = 28;
+/** How long a draft section shows as updating before its new content appears. */
+const UPDATE_MS = 1200;
 
 /** Streams a scripted reply word by word after a short "thinking" pause. */
 async function* typed(text: string): AsyncIterable<string> {
   await new Promise((r) => setTimeout(r, THINK_MS));
-  const words = text.split(/(\s+)/);
-  for (const w of words) {
+  for (const w of text.split(/(\s+)/)) {
     if (!w) continue;
     yield w;
     if (w.trim()) await new Promise((r) => setTimeout(r, WORD_MS));
   }
 }
 
-// Privacy Agent setup conversation (v0 Act 1, steps 2–8): research, document
-// upload, playbook, intake agents, systems, then hand-off to the flow chart.
+function list(labels: readonly string[]): string {
+  if (labels.length <= 1) return labels[0] ?? 'none';
+  return `${labels.slice(0, -1).join(', ')} and ${labels[labels.length - 1]}`;
+}
+
+// Privacy Agent setup (v0 Act 1, steps 2–8), laid out like the AI-assisted RoPA authoring page:
+// a narrow conversation on the left and the wide workflow draft it builds on the right.
 @Component({
   selector: 'app-setup-agent',
   imports: [
@@ -110,68 +111,89 @@ async function* typed(text: string): AsyncIterable<string> {
     OcAssistantMessage,
     OcAssistantThinking,
     OcAssistantScrollToBottom,
-    OcAssistantSuggestion,
     OcAssistantComposer,
     OcAssistantInput,
     OcAssistantActions,
     OcAssistantSubmit,
     OcAvatar,
-    OcBadge,
     OcButton,
+    OcCheckbox,
     OcIcon,
     OcIconButton,
     OcStreamDirective,
-    OcTag,
     OcTextarea,
     PageHeader,
+    WorkflowDraft,
   ],
   templateUrl: './setup-agent.html',
   styleUrl: './setup-agent.scss',
 })
 export class SetupAgent {
   protected readonly user = SIGNED_IN_USER;
-  protected readonly profile = COMPANY_PROFILE;
   protected readonly documents = SETUP_DOCUMENTS;
-  protected readonly playbook = PLAYBOOK;
-  protected readonly agents = INTAKE_AGENTS;
-  protected readonly systems = SYSTEMS;
-  protected readonly steps = SETUP_STEPS;
 
   protected readonly turns = signal<Turn[]>([]);
   /** Index of the latest agent stage started. */
   protected readonly stage = signal(-1);
-  /** Turn ids whose text has finished streaming (their block is shown). */
-  protected readonly settled = signal<ReadonlySet<number>>(new Set());
   protected readonly busy = signal(false);
   protected readonly streamStates = signal<Record<number, ChoreoState>>({});
-  protected readonly agentsApproved = signal(false);
-  protected readonly systemsConnected = signal(false);
 
-  /** Setup steps completed: each agent stage finishes the step before it. */
-  protected readonly stepsDone = computed(() => {
-    const s = this.stage();
-    const last = STAGES.length - 1;
-    // The hand-off stage completes the last step once its text has streamed.
-    if (s === last && !this.busy()) return SETUP_STEPS.length;
-    return Math.max(0, Math.min(s, SETUP_STEPS.length));
+  // ---- The workflow draft
+  protected readonly draft = signal<DraftState>({
+    regulations: null,
+    documents: null,
+    rules: null,
+    agents: null,
+    systems: null,
+  });
+  protected readonly updating = signal<DraftSection | null>(null);
+  protected readonly ready = computed(() => this.stage() === STAGES.length - 1 && !this.busy());
+
+  // ---- The open question and its choices (all suggested options start selected)
+  protected readonly question = computed<Question | undefined>(() =>
+    this.busy() ? undefined : STAGES[this.stage()]?.question,
+  );
+  protected readonly optionsBase: Record<Exclude<Question, 'documents'>, readonly Option[]> = {
+    scope: REGULATIONS.map((r) => ({ id: r.id, label: r.label, detail: `${r.region} · ${r.deadline}` })),
+    rules: WORKFLOW_RULES.map((r) => ({ id: r.id, label: r.text, detail: r.source })),
+    agents: INTAKE_AGENTS.map((a) => ({ id: a.brand, label: a.brand, detail: a.regulations.join(' · ') })),
+    systems: SYSTEMS.map((s) => ({ id: s.name, label: s.name, detail: s.connector ? s.holds : `${s.holds} · via Daniel Okafor` })),
+  };
+  /** Options for each question; intake agents list only the regulations kept in scope. */
+  protected readonly options = computed<Record<Exclude<Question, 'documents'>, readonly Option[]>>(() => {
+    const scope = new Set(
+      REGULATIONS.filter((r) => this.draft().regulations?.includes(r.id)).map((r) => r.label),
+    );
+    return {
+      ...this.optionsBase,
+      agents: INTAKE_AGENTS.map((a) => ({
+        id: a.brand,
+        label: a.brand,
+        detail: (scope.size ? a.regulations.filter((r) => scope.has(r)) : a.regulations).join(' · '),
+      })),
+    };
   });
 
-  /** What the composer's suggestion chip sends now, if anything. */
-  protected readonly suggestion = computed(() => {
-    if (this.busy()) return undefined;
-    switch (this.stage()) {
-      case 0:
-        return STAGES[0].next;
-      case 2:
-        return STAGES[2].next;
-      default:
-        return undefined;
-    }
+  protected readonly selected = signal<Record<string, ReadonlySet<string>>>({
+    scope: new Set(REGULATIONS.map((r) => r.id)),
+    rules: new Set(WORKFLOW_RULES.map((r) => r.id)),
+    agents: new Set(INTAKE_AGENTS.map((a) => a.brand)),
+    systems: new Set(SYSTEMS.map((s) => s.name)),
   });
+
+  protected readonly questionTitle: Record<Question, string> = {
+    scope: 'Which regulations should the workflow cover?',
+    documents: 'Attach your process documents',
+    rules: 'Which rules should every request follow?',
+    agents: 'Which intake agents should I create?',
+    systems: 'Which systems should I work in?',
+  };
 
   #nextId = 1;
+  #timer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => clearTimeout(this.#timer));
     this.#reply(0);
   }
 
@@ -183,55 +205,92 @@ export class SetupAgent {
     this.streamStates.update((s) => ({ ...s, [id]: state }));
   }
 
-  protected onStreamComplete(id: number): void {
-    this.settled.update((s) => new Set(s).add(id));
+  protected onStreamComplete(): void {
     this.busy.set(false);
   }
 
-  protected isSettled(id: number): boolean {
-    return this.settled().has(id);
+  protected isChecked(q: Question, id: string): boolean {
+    return this.selected()[q]?.has(id) ?? false;
   }
 
-  /** Anything the user sends moves the script to the next agent turn. */
+  protected toggle(q: Question, id: string, on: boolean): void {
+    this.selected.update((all) => {
+      const next = new Set(all[q]);
+      if (on) next.add(id);
+      else next.delete(id);
+      return { ...all, [q]: next };
+    });
+  }
+
+  protected count(q: Question): number {
+    return this.selected()[q]?.size ?? 0;
+  }
+
+  /** Typed messages answer the open question with its current choices. */
   protected onSend(text: string): void {
     const message = text.trim();
-    if (!message || this.busy() || this.stage() >= STAGES.length - 1) return;
-    this.#say(message);
+    if (!message || this.busy()) return;
+    const q = this.question();
+    if (q) {
+      this.answer(q, message);
+    } else {
+      this.#say(message);
+      this.#replyText(
+        'Open the flow chart to review the full workflow. You can ask me for changes there, and I’ll update each path.',
+      );
+    }
+  }
+
+  /** Confirms the open question: records the answer, updates its draft section, moves on. */
+  protected answer(q: Question, typed?: string): void {
+    if (this.busy()) return;
+    const chosen = [...(this.selected()[q] ?? [])];
+    const labelOf = (id: string) => this.options()[q as Exclude<Question, 'documents'>].find((o) => o.id === id)!.label;
+
+    switch (q) {
+      case 'scope':
+        this.#say(typed ?? `Cover ${list(chosen.map(labelOf))}.`);
+        this.#update('scope', { regulations: chosen });
+        break;
+      case 'documents':
+        this.#say(typed ?? 'Here are our DSAR procedure, data flows, response letter examples and brand guide.', true);
+        this.#update('sources', { documents: SETUP_DOCUMENTS });
+        break;
+      case 'rules':
+        this.#say(typed ?? (chosen.length ? `Apply ${chosen.length} of the ${WORKFLOW_RULES.length} rules.` : 'Don’t apply any of them yet.'));
+        this.#update('rules', { rules: chosen });
+        break;
+      case 'agents':
+        this.#say(typed ?? (chosen.length ? `Create ${list(chosen)}.` : 'No intake agents for now.'));
+        this.#update('intake', { agents: chosen });
+        break;
+      case 'systems':
+        this.#say(typed ?? (chosen.length ? `Connect ${list(chosen)}.` : 'No systems yet.'));
+        this.#update('paths', { systems: chosen });
+        break;
+    }
     this.#reply(this.stage() + 1);
   }
 
-  /** Stage 1: attach the four Meridian documents (the demo's "upload"). */
-  protected attachDocuments(): void {
-    if (this.busy()) return;
-    this.#say('Here are our DSAR procedure, data flows, response letter examples and brand guide.', 'uploads');
-    this.#reply(2);
+  #update(section: DraftSection, patch: Partial<DraftState>): void {
+    this.draft.update((d) => ({ ...d, ...patch }));
+    this.updating.set(section);
+    clearTimeout(this.#timer);
+    this.#timer = setTimeout(() => this.updating.set(null), UPDATE_MS);
   }
 
-  protected approveAgents(): void {
-    if (this.busy() || this.agentsApproved()) return;
-    this.agentsApproved.set(true);
-    this.#say('Approve all four.');
-    this.#reply(4);
-  }
-
-  protected connectSystems(): void {
-    if (this.busy() || this.systemsConnected()) return;
-    this.systemsConnected.set(true);
-    this.#say('Connect them.');
-    this.#reply(5);
-  }
-
-  #say(text: string, block?: Block): void {
-    this.turns.update((ts) => [...ts, { id: this.#nextId++, from: 'user', text, block }]);
+  #say(text: string, attachments = false): void {
+    this.turns.update((ts) => [...ts, { id: this.#nextId++, from: 'user', text, attachments }]);
   }
 
   #reply(stage: number): void {
-    const s = STAGES[stage];
     this.stage.set(stage);
+    this.#replyText(STAGES[stage].reply);
+  }
+
+  #replyText(text: string): void {
     this.busy.set(true);
-    this.turns.update((ts) => [
-      ...ts,
-      { id: this.#nextId++, from: 'assistant', text: s.reply, block: s.block, source: typed(s.reply) },
-    ]);
+    this.turns.update((ts) => [...ts, { id: this.#nextId++, from: 'assistant', text, source: typed(text) }]);
   }
 }
+
