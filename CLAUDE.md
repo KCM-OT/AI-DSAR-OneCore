@@ -53,7 +53,8 @@ Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
 - `/chat`: Chat home, the Privacy Agent's start screen, opened by Chat in the main menu. Its layout
   follows the AI Governance "Corie" home (https://rod-aig-uat.vercel.app/rod/aig/ai-gov/corie/, right-hand content only):
   - greeting
-  - composer with request-type and source scope menus
+  - composer (the scope bar under it, with All requests, All sources and Prompt library, was removed
+    on 2026-11-24; its options are still in `chat-home.ts` data)
   - shortcuts
   - tabs: High priority tasks / You left open / Privacy Agent handled
   Content is in `src/app/data/chat-home.ts`. The main action is finishing the Privacy Agent setup:

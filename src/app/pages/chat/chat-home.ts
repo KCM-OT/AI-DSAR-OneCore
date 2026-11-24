@@ -12,7 +12,6 @@ import { OcBadge, type OcBadgeColor } from '@onetrust/onecore/badge';
 import { OcButton } from '@onetrust/onecore/button';
 import { OcIcon } from '@onetrust/onecore/icon';
 import { OcIconButton } from '@onetrust/onecore/icon-button';
-import { OcMenu, OcMenuItemRadio, OcMenuRadioGroup, OcMenuTrigger } from '@onetrust/onecore/menu';
 import { OcProgress } from '@onetrust/onecore/progress';
 import { OcTabButton, OcTabList, OcTabPanel, OcTabs } from '@onetrust/onecore/tabs';
 import { OcTextarea } from '@onetrust/onecore/textarea';
@@ -23,10 +22,8 @@ import {
   type OpenItemState,
   PLACEHOLDER_PROMPTS,
   PRIORITY_TASKS,
-  REQUEST_SCOPES,
   SHORTCUTS,
   type Shortcut,
-  SOURCE_SCOPES,
 } from '../../data/chat-home';
 import { SIGNED_IN_USER } from '../../data/meridian';
 
@@ -39,7 +36,7 @@ const OPEN_STATE: Record<OpenItemState, { label: string; color: OcBadgeColor }> 
 };
 
 // Chat home (/chat, opened by Chat in the main menu): the Privacy Agent's start screen. Layout follows the AI Governance "Corie"
-// home: greeting, composer with scope pickers, shortcuts, then tabs of work waiting on the user.
+// home: greeting, composer, shortcuts, then tabs of work waiting on the user.
 // The main action, here and in the first task card, is finishing the Privacy Agent setup.
 @Component({
   selector: 'app-chat-home',
@@ -55,10 +52,6 @@ const OPEN_STATE: Record<OpenItemState, { label: string; color: OcBadgeColor }> 
     OcButton,
     OcIcon,
     OcIconButton,
-    OcMenu,
-    OcMenuTrigger,
-    OcMenuRadioGroup,
-    OcMenuItemRadio,
     OcProgress,
     OcTabs,
     OcTabList,
@@ -78,14 +71,8 @@ export class ChatHome {
   protected readonly openItems = OPEN_ITEMS;
   protected readonly openState = OPEN_STATE;
   protected readonly handled = HANDLED_EVENTS;
-  protected readonly requestScopes = REQUEST_SCOPES;
-  protected readonly sourceScopes = SOURCE_SCOPES;
 
   protected readonly tab = signal('priority');
-  protected readonly requestScope = signal('all');
-  protected readonly sourceScope = signal('all');
-  protected readonly requestScopeLabel = computed(() => labelOf(REQUEST_SCOPES, this.requestScope()));
-  protected readonly sourceScopeLabel = computed(() => labelOf(SOURCE_SCOPES, this.sourceScope()));
 
   protected readonly showAllTasks = signal(false);
   protected readonly tasks = computed(() =>
@@ -120,6 +107,3 @@ function greetingFor(now: Date): string {
   return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
 }
 
-function labelOf(options: readonly { value: string; label: string }[], value: string): string {
-  return options.find((o) => o.value === value)?.label ?? '';
-}

@@ -30,19 +30,6 @@ oc-assistant-thread.ask {
   box-shadow: var(--oc-shadow-raised);
 }
 
-.scope-bar {
-  display: flex;
-  align-items: center;
-  gap: var(--oc-spacing-1);
-  margin: 0 var(--oc-spacing-3);
-  padding: var(--oc-spacing-1) var(--oc-spacing-2);
-  border-radius: 0 0 var(--oc-containers-radius-level-3) var(--oc-containers-radius-level-3);
-  background: var(--oc-secondary);
-
-  .library {
-    margin-left: auto;
-  }
-}
 
 .shortcuts {
   display: flex;

@@ -22,43 +22,6 @@
           </span>
         </div>
       </oc-assistant-composer>
-
-      <div class="scope-bar">
-        <button oc-button variant="tertiary" size="sm" [ocMenuTrigger]="requestMenu">
-          <oc-icon slot="leading" name="ticket" />
-          {{ requestScopeLabel() }}
-          <oc-icon slot="trailing" name="chevron-down" />
-        </button>
-        <ng-template #requestMenu>
-          <oc-menu>
-            <div ocMenuRadioGroup [(value)]="requestScope">
-              @for (o of requestScopes; track o.value) {
-                <button oc-menu-item-radio [value]="o.value">{{ o.label }}</button>
-              }
-            </div>
-          </oc-menu>
-        </ng-template>
-
-        <button oc-button variant="tertiary" size="sm" [ocMenuTrigger]="sourceMenu">
-          <oc-icon slot="leading" name="database" />
-          {{ sourceScopeLabel() }}
-          <oc-icon slot="trailing" name="chevron-down" />
-        </button>
-        <ng-template #sourceMenu>
-          <oc-menu>
-            <div ocMenuRadioGroup [(value)]="sourceScope">
-              @for (o of sourceScopes; track o.value) {
-                <button oc-menu-item-radio [value]="o.value">{{ o.label }}</button>
-              }
-            </div>
-          </oc-menu>
-        </ng-template>
-
-        <button class="library" oc-button variant="tertiary" size="sm">
-          <oc-icon slot="leading" name="book" />
-          Prompt library
-        </button>
-      </div>
     </div>
 
     <div class="shortcuts" role="group" aria-label="Shortcuts">
