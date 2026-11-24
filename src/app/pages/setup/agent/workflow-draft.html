@@ -1,12 +1,27 @@
-<div class="scroll">
-  <div class="head">
-    <div>
-      <h2 id="draft-title">Workflow draft</h2>
-      <p class="sub">DSAR intake workflow for {{ brands.length }} brands. Nothing is published until you review it.</p>
-    </div>
-    <oc-badge size="sm" [color]="status().color">{{ status().label }}</oc-badge>
+<div class="head">
+  <div>
+    <h2 id="draft-title">{{ view() === 'draft' ? 'Workflow draft' : 'DSAR intake workflow' }}</h2>
+    <p class="sub">
+      Built from your answers for {{ brands.length }} brands. Nothing is published until you review it.
+    </p>
   </div>
+  <div class="head-actions">
+    <oc-badge size="sm" [color]="status().color">{{ status().label }}</oc-badge>
+    <oc-toggle-button-group aria-label="View" [value]="[view()]" (valueChange)="setView($event)">
+      <button oc-toggle-button-group-item value="draft">
+        <oc-icon name="list-check" size="sm" /> Workflow draft
+      </button>
+      <button oc-toggle-button-group-item value="flow">
+        <oc-icon name="sitemap" size="sm" /> Flow chart
+      </button>
+    </oc-toggle-button-group>
+  </div>
+</div>
 
+@if (view() === 'flow') {
+  <app-flow-chart class="flow" [state]="state()" [updating]="updating()" [changed]="changed()" />
+} @else {
+<div class="scroll">
   <dl class="basics">
     <div>
       <dt>Workflow</dt>
@@ -169,20 +184,4 @@
     }
   </ol>
 </div>
-
-<div class="foot">
-  <a
-    oc-button
-    variant="accent"
-    [attr.aria-disabled]="!ready() || null"
-    [class.disabled]="!ready()"
-    [routerLink]="ready() ? '/setup/flow' : null"
-  >
-    <oc-icon slot="leading" name="sitemap" />
-    Open the flow chart
-  </a>
-  <p>
-    Drafted by the Privacy Agent from your answers and documents. Review it as a flow chart, then
-    publish one workflow per request type.
-  </p>
-</div>
+}

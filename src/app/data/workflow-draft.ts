@@ -94,3 +94,14 @@ export const DRAFT_SECTIONS: readonly { id: DraftSection; title: string; waiting
   { id: 'intake', title: 'Intake channels', waitingFor: 'Approve the branded intake agents.' },
   { id: 'paths', title: 'Request paths', waitingFor: 'Choose the systems the agent works in.' },
 ];
+
+/** Request-type colours in the flow chart legend and the draft's lanes (DSR 2026 Figma, node 187:3903). */
+export const FLOW_TYPE_COLORS: Record<RequestType, string> = {
+  'Opt-out': 'var(--oc-supportive-green)',
+  Access: 'var(--oc-supportive-blue)',
+  Deletion: 'var(--oc-supportive-yellow)',
+  Correction: 'var(--oc-supportive-teal)',
+};
+
+/** Legend order in the flow chart, top to bottom as the branches are drawn. */
+export const FLOW_ORDER: readonly RequestType[] = ['Opt-out', 'Access', 'Deletion', 'Correction'];

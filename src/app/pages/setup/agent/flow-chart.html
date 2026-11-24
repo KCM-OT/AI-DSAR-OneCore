@@ -1,0 +1,102 @@
+<!-- Legend: one entry per request type (Figma "tag-button-div") -->
+<ul class="legend" aria-label="Request types">
+  @for (t of order; track t) {
+    <li>
+      <span class="bar" [style.background]="typeColors[t]"></span>
+      <span>
+        <strong>{{ t }}</strong>
+        <span>{{ purpose[t] }}</span>
+      </span>
+    </li>
+  }
+</ul>
+
+<div class="canvas">
+  @if (scope()) {
+    <p class="scope"><strong>In scope</strong> {{ scope() }}</p>
+  }
+  <!-- Zoom and pan (Figma "navigation-tools") -->
+  <div class="tools" role="toolbar" aria-label="Flow chart view">
+    <button type="button" (click)="zoomBy(-0.1)" aria-label="Zoom out">
+      <img src="flow/zoom-out.svg" alt="" width="13.9932" height="13.9932" />
+    </button>
+    <span class="pct" aria-live="polite">{{ (zoom() * 100).toFixed(0) }}%</span>
+    <button type="button" (click)="zoomBy(0.1)" aria-label="Zoom in">
+      <img src="flow/zoom-in.svg" alt="" width="13.9932" height="13.9932" />
+    </button>
+    <span class="divider" aria-hidden="true"></span>
+    <button
+      type="button"
+      [attr.aria-pressed]="panMode()"
+      (click)="panMode.set(!panMode())"
+      aria-label="Pan"
+    >
+      <img src="flow/hand-pan.svg" alt="" width="13.1455" height="14" />
+    </button>
+  </div>
+
+  <div
+    #viewport
+    class="viewport"
+    [class.pan]="panMode()"
+    [class.panning]="panning()"
+    (pointerdown)="startPan($event)"
+    (pointermove)="movePan($event)"
+    (pointerup)="endPan()"
+    (pointercancel)="endPan()"
+  >
+    @let l = layout();
+    <div class="sizer" [style.width.px]="l.width * zoom() + 96" [style.height.px]="l.height * zoom() + 120">
+      <div
+        class="chart"
+        role="img"
+        aria-label="DSAR intake workflow flow chart"
+        [style.width.px]="l.width"
+        [style.height.px]="l.height"
+        [style.transform]="'scale(' + zoom() + ')'"
+      >
+        @for (g of l.groups; track g.type) {
+          <div class="group" [style.left.px]="g.x" [style.top.px]="g.y" [style.width.px]="g.w" [style.height.px]="g.h"></div>
+        }
+
+        <svg class="edges" [attr.width]="l.width" [attr.height]="l.height" aria-hidden="true">
+          @for (d of l.edges; track $index) {
+            <path [attr.d]="d" />
+          }
+        </svg>
+
+        @for (b of l.labels; track b.type) {
+          <span class="branch" [style.left.px]="b.x" [style.top.px]="b.y">
+            <oc-tag size="sm" color="green">{{ b.type.toLowerCase() }}</oc-tag>
+          </span>
+        }
+
+        @for (n of l.nodes; track n.id) {
+          <div
+            class="node"
+            [attr.data-tone]="n.tone"
+            [class.changed]="isChanged(n)"
+            [class.updating]="!!n.section && n.section === updating()"
+            [style.left.px]="n.x"
+            [style.top.px]="n.y"
+            [style.width.px]="nodeW"
+            [style.height.px]="nodeH"
+          >
+            <span class="strip" [style.background]="toneColor[n.tone]"></span>
+            <span class="text">
+              <strong>{{ n.title }}</strong>
+              @if (n.detail) {
+                <span>{{ n.detail }}</span>
+              }
+            </span>
+            <span class="dot in" aria-hidden="true"></span>
+            <span class="dot out" aria-hidden="true"></span>
+            @if (isChanged(n)) {
+              <span class="flag">{{ n.section === updating() ? 'Updating' : 'Updated' }}</span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

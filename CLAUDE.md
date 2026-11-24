@@ -59,7 +59,16 @@ Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
     view.
   - Request paths are one lane per request type, built from the chosen rules and systems; a type
     with no system shows "No system selected".
-  - When done, the draft is "Ready for review" and links to `/setup/flow`.
+  - The artifact header toggles between **Workflow draft** (the sections) and **Flow chart**
+    (`flow-chart.ts`, from the DSR 2026 Figma frame "workflow for vercel", node 187:3734).
+    - The flow chart is laid out in code from the same answers: Intake → Verify identity →
+      opt-out / access / deletion / correction branches (system groups, then the rule steps) →
+      Generate response → Deliver.
+    - Nodes from the latest answer get an accent outline and an "Updated" tag, and the canvas
+      pans to them.
+    - Zoom and pan icons are in `public/flow/`.
+    - Request-type colours follow the Figma legend (`FLOW_TYPE_COLORS`).
+  - When done, the draft is "Ready for review". There's no footer button.
   - Workflow data is in `src/app/data/workflow-draft.ts`, with steps that match the v0 flow chart.
 - `/chat`: Chat home, the Privacy Agent's start screen, opened by Chat in the main menu. Its layout
   follows the AI Governance "Corie" home (https://rod-aig-uat.vercel.app/rod/aig/ai-gov/corie/, right-hand content only):

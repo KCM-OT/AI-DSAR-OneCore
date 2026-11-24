@@ -1,15 +1,18 @@
-import { afterNextRender, Component, computed, effect, ElementRef, inject, Injector, input } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { afterNextRender, Component, computed, effect, ElementRef, inject, Injector, input, signal } from '@angular/core';
 import { OcBadge } from '@onetrust/onecore/badge';
-import { OcButton } from '@onetrust/onecore/button';
 import { OcIcon } from '@onetrust/onecore/icon';
 import { OcProgress } from '@onetrust/onecore/progress';
 import { OcSkeleton } from '@onetrust/onecore/skeleton';
 import { OcTag } from '@onetrust/onecore/tag';
+import {
+  OcToggleButtonGroup,
+  OcToggleButtonGroupItem,
+} from '@onetrust/onecore/toggle-button-group';
 import { COMPANY_PROFILE, INTAKE_AGENTS, type UploadedDoc } from '../../../data/meridian';
 import {
   DRAFT_SECTIONS,
   type DraftSection,
+  FLOW_TYPE_COLORS,
   REGULATIONS,
   REQUEST_TYPE_PURPOSE,
   REQUEST_TYPES,
@@ -17,7 +20,7 @@ import {
   SYSTEM_ACTIONS,
   WORKFLOW_RULES,
 } from '../../../data/workflow-draft';
-import { TYPE_COLORS } from '../../command-center/volume-chart';
+import { FlowChart } from './flow-chart';
 
 /** The user's answers so far. `null` means the question hasn't been answered yet. */
 export interface DraftState {
@@ -41,7 +44,7 @@ interface PathStep {
 // is highlighted (and scrolled into view) while it updates.
 @Component({
   selector: 'app-workflow-draft',
-  imports: [RouterLink, OcBadge, OcButton, OcIcon, OcProgress, OcSkeleton, OcTag],
+  imports: [FlowChart, OcBadge, OcIcon, OcProgress, OcSkeleton, OcTag, OcToggleButtonGroup, OcToggleButtonGroupItem],
   templateUrl: './workflow-draft.html',
   styleUrl: './workflow-draft.scss',
 })
@@ -51,11 +54,20 @@ export class WorkflowDraft {
   readonly updating = input<DraftSection | null>(null);
   /** The agent has finished the draft. */
   readonly ready = input(false);
+  /** The section the latest answer changed, highlighted in the flow chart. */
+  readonly changed = input<DraftSection | null>(null);
+
+  /** Workflow draft (sections) or the same draft as a flow chart. */
+  protected readonly view = signal<'draft' | 'flow'>('draft');
+
+  protected setView(values: readonly string[]): void {
+    if (values[0] === 'draft' || values[0] === 'flow') this.view.set(values[0]);
+  }
 
   protected readonly sections = DRAFT_SECTIONS;
   protected readonly requestTypes = REQUEST_TYPES;
   protected readonly purpose = REQUEST_TYPE_PURPOSE;
-  protected readonly typeColors = TYPE_COLORS;
+  protected readonly typeColors = FLOW_TYPE_COLORS;
   protected readonly brands = COMPANY_PROFILE.find((r) => r.label === 'Brands')!.values;
   protected readonly countries = COMPANY_PROFILE.find((r) => r.label === 'Customer countries')!.values;
 
@@ -66,7 +78,7 @@ export class WorkflowDraft {
     // Bring the section being updated into view.
     effect(() => {
       const id = this.updating();
-      if (!id) return;
+      if (!id || this.view() !== 'draft') return;
       // Scroll only the panel (scrollIntoView would also scroll the page around it).
       afterNextRender(() => {
         const root = this.host.nativeElement;

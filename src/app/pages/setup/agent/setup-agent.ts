@@ -147,6 +147,8 @@ export class SetupAgent {
     systems: null,
   });
   protected readonly updating = signal<DraftSection | null>(null);
+  /** The section the latest answer changed; the flow chart keeps it highlighted. */
+  protected readonly changed = signal<DraftSection | null>(null);
   protected readonly ready = computed(() => this.stage() === STAGES.length - 1 && !this.busy());
 
   // ---- The open question and its choices (all suggested options start selected)
@@ -275,6 +277,7 @@ export class SetupAgent {
   #update(section: DraftSection, patch: Partial<DraftState>): void {
     this.draft.update((d) => ({ ...d, ...patch }));
     this.updating.set(section);
+    this.changed.set(section);
     clearTimeout(this.#timer);
     this.#timer = setTimeout(() => this.updating.set(null), UPDATE_MS);
   }
