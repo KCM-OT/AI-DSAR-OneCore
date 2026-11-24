@@ -30,6 +30,8 @@ export class AppShell {
   protected readonly collapsed = signal(false);
   /** The Chat workspace menu is showing in place of the main menu. */
   protected readonly chatOpen = signal(false);
+  /** Setup's sub-pages are listed under it; open on any /setup page. */
+  protected readonly setupOpen = signal(false);
 
   private readonly router = inject(Router);
   private readonly chatButton = viewChild.required<ElementRef<HTMLButtonElement>>('chatButton');
@@ -46,6 +48,7 @@ export class AppShell {
         takeUntilDestroyed(),
       )
       .subscribe((e) => {
+        if (/^\/setup(\/|$|\?)/.test(e.urlAfterRedirects)) this.setupOpen.set(true);
         const chatUrl = /^\/chats?(\/|$|\?)/.test(e.urlAfterRedirects);
         if (chatUrl || history.state?.chatMenu) this.chatOpen.set(true);
       });
@@ -57,6 +60,13 @@ export class AppShell {
     this.chatOpen.set(true);
     this.router.navigateByUrl('/chat');
     setTimeout(() => this.backButton().nativeElement.focus({ preventScroll: true }));
+  }
+
+  // Clicking Setup opens its landing page and its sub-menu; clicking it again on the landing page
+  // folds the sub-menu away.
+  protected toggleSetup(): void {
+    const onLanding = /^\/setup\/?(\?|$)/.test(this.router.url);
+    this.setupOpen.set(onLanding ? !this.setupOpen() : true);
   }
 
   protected closeChat(): void {

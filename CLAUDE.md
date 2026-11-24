@@ -39,7 +39,9 @@ Mock tenant data lives in `src/app/data/meridian.ts`. Built so far:
 - Shell (`src/app/shell/`): left navigation from the DSR 2026 Figma file
   (https://www.figma.com/design/TsBLUuUoHuzy2DyMuN7NuY/DSR-2026?node-id=464-15550), with the
   groups "Privacy Rights: DSAR" and "Workspaces", a user block, and a collapse toggle; plus the
-  tenant top bar. The sidebar sets `data-mode="dark"`, so it uses dark-mode `--oc-*` tokens. Its
+  tenant top bar. Setup opens `/setup` and expands its sub-pages beneath it (`SETUP_LINKS`: Web
+  forms, Workflows, Integrations, Response templates, Subtask templates, Redaction preferences, all
+  placeholders under `/setup/…`); it stays expanded on any `/setup` page. The sidebar sets `data-mode="dark"`, so it uses dark-mode `--oc-*` tokens. Its
   links are in `shell/nav.ts`. Chat opens the Chat workspace menu (Figma node 467:17316: back,
   New chat, All chats, and the recent chats): the two menus sit on a track that
   slides left, while the header and user block stay put. Clicking Chat (or New chat) opens `/chat`. Any

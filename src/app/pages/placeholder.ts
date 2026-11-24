@@ -1,5 +1,7 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter, map } from 'rxjs';
 import { findNavLink } from '../shell/nav';
 import { PageHeader } from '../shell/page-header';
 
@@ -8,7 +10,7 @@ import { PageHeader } from '../shell/page-header';
   selector: 'app-placeholder',
   imports: [PageHeader],
   template: `
-    <app-page-header [title]="label" />
+    <app-page-header [title]="label()" />
     <div class="empty">
       <p class="title">Not built yet</p>
       <p>This screen from the v0 demo hasn't been rebuilt yet (see <code>docs/v0-reference.md</code>).</p>
@@ -36,5 +38,17 @@ import { PageHeader } from '../shell/page-header';
   `,
 })
 export class Placeholder {
-  protected readonly label = findNavLink(inject(Router).url.split('?')[0])?.label ?? 'Not found';
+  // The '**' route reuses this component between placeholder pages, so follow the URL.
+  readonly #router = inject(Router);
+  protected readonly label = toSignal(
+    this.#router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      map(() => this.#labelFor(this.#router.url)),
+    ),
+    { initialValue: this.#labelFor(this.#router.url) },
+  );
+
+  #labelFor(url: string): string {
+    return findNavLink(url.split('?')[0])?.label ?? 'Not found';
+  }
 }

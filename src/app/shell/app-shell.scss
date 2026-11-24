@@ -166,8 +166,55 @@
 }
 
 .caret {
+  transition: rotate 150ms ease;
+
+  &.open {
+    rotate: 90deg;
+  }
+
   .collapsed & {
     display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+// Setup's sub-pages, indented to line up with the parent's label.
+.group .submenu {
+  gap: 2px;
+  margin: 2px 0 var(--oc-spacing-1);
+}
+
+.sub-item {
+  box-sizing: border-box;
+  display: block;
+  padding: var(--oc-spacing-2) var(--oc-control-padding-x-md) var(--oc-spacing-2)
+    calc(var(--oc-control-padding-x-md) + 20px + var(--app-nav-gap)); // past the 20px icon
+  overflow: hidden;
+  border-radius: var(--oc-control-radius-md);
+  color: var(--oc-muted-foreground);
+  font-size: var(--oc-font-size-sm);
+  line-height: var(--oc-line-height-tight);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--oc-item-hover);
+    color: var(--oc-foreground);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--oc-ring);
+    outline-offset: -2px;
+  }
+
+  &.active {
+    background: var(--oc-item-active);
+    color: var(--oc-foreground);
+    font-weight: var(--oc-font-weight-emphasis);
   }
 }
 

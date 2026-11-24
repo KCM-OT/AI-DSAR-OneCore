@@ -6,7 +6,24 @@ export interface NavLink {
   icon: OcIconName;
   /** Shows a caret: the item has its own pages (Setup) or opens a secondary menu (Chat). */
   hasMenu?: boolean;
+  /** Sub-pages listed under the item when it's expanded (Setup). */
+  children?: readonly SubLink[];
 }
+
+export interface SubLink {
+  label: string;
+  path: string;
+}
+
+/** Setup's sub-pages, listed under Setup in the main menu. */
+export const SETUP_LINKS: readonly SubLink[] = [
+  { label: 'Web forms', path: '/setup/web-forms' },
+  { label: 'Workflows', path: '/setup/workflows' },
+  { label: 'Integrations', path: '/setup/integrations' },
+  { label: 'Response templates', path: '/setup/response-templates' },
+  { label: 'Subtask templates', path: '/setup/subtask-templates' },
+  { label: 'Redaction preferences', path: '/setup/redaction-preferences' },
+];
 
 // Left navigation from the DSR 2026 Figma file ("Left Nav - DSAR", node 464:15550).
 
@@ -16,7 +33,7 @@ export const MODULE_LINKS: readonly NavLink[] = [
   { label: 'Reports', path: '/reports', icon: 'area-chart' },
   { label: 'Requests', path: '/requests', icon: 'ticket' },
   { label: 'Subtasks', path: '/subtasks', icon: 'list-check' },
-  { label: 'Setup', path: '/setup', icon: 'gear', hasMenu: true },
+  { label: 'Setup', path: '/setup', icon: 'gear', hasMenu: true, children: SETUP_LINKS },
   { label: 'Settings', path: '/settings', icon: 'sliders' },
 ];
 
@@ -37,8 +54,9 @@ const CHAT_LINKS: readonly NavLink[] = [
   { label: 'All chats', path: '/chats', icon: 'plus' },
 ];
 
-const ALL_LINKS = [...MODULE_LINKS, ...WORKSPACE_LINKS, ...CHAT_LINKS];
+// Sub-pages first, so /setup/workflows finds Workflows rather than Setup.
+const ALL_LINKS: readonly SubLink[] = [...SETUP_LINKS, ...MODULE_LINKS, ...WORKSPACE_LINKS, ...CHAT_LINKS];
 
-export function findNavLink(url: string): NavLink | undefined {
+export function findNavLink(url: string): SubLink | undefined {
   return ALL_LINKS.find((l) => url === l.path || url.startsWith(l.path + '/'));
 }

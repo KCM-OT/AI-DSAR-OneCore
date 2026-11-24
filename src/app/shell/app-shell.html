@@ -25,19 +25,51 @@
           <ul>
             @for (l of moduleLinks; track l.path) {
               <li>
-                <a
-                  class="nav-item"
-                  [routerLink]="l.path"
-                  routerLinkActive="active"
-                  ariaCurrentWhenActive="page"
-                  [attr.title]="collapsed() ? l.label : null"
-                >
-                  <oc-icon [name]="l.icon" variant="outline" />
-                  <span class="label">{{ l.label }}</span>
-                  @if (l.hasMenu) {
-                    <oc-icon class="caret" name="caret-right" variant="outline" size="lg" />
+                @if (l.children) {
+                  <!-- Setup: opens its landing page and shows its sub-pages beneath it. -->
+                  <a
+                    class="nav-item"
+                    [routerLink]="l.path"
+                    routerLinkActive="active"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    ariaCurrentWhenActive="page"
+                    [attr.title]="collapsed() ? l.label : null"
+                    [attr.aria-expanded]="collapsed() ? null : setupOpen()"
+                    aria-controls="setup-menu"
+                    (click)="toggleSetup()"
+                  >
+                    <oc-icon [name]="l.icon" variant="outline" />
+                    <span class="label">{{ l.label }}</span>
+                    <oc-icon class="caret" [class.open]="setupOpen()" name="caret-right" variant="outline" size="lg" />
+                  </a>
+                  @if (setupOpen() && !collapsed()) {
+                    <ul id="setup-menu" class="submenu" aria-label="Setup pages">
+                      @for (c of l.children; track c.path) {
+                        <li>
+                          <a
+                            class="sub-item"
+                            [routerLink]="c.path"
+                            routerLinkActive="active"
+                            ariaCurrentWhenActive="page"
+                          >
+                            {{ c.label }}
+                          </a>
+                        </li>
+                      }
+                    </ul>
                   }
-                </a>
+                } @else {
+                  <a
+                    class="nav-item"
+                    [routerLink]="l.path"
+                    routerLinkActive="active"
+                    ariaCurrentWhenActive="page"
+                    [attr.title]="collapsed() ? l.label : null"
+                  >
+                    <oc-icon [name]="l.icon" variant="outline" />
+                    <span class="label">{{ l.label }}</span>
+                  </a>
+                }
               </li>
             }
           </ul>
